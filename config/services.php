@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'fastapi' => [
+        'base_url' => env('FASTAPI_BASE_URL', 'http://127.0.0.1:8001'),
+        'secret' => env('FASTAPI_INTERNAL_SECRET', 'bims-secure-internal-secret'),
+        'timeout' => (int) env('FASTAPI_TIMEOUT', 60),
+    ],
+
 ];

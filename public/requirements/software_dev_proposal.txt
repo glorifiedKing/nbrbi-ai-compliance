@@ -1,0 +1,142 @@
+Software Development Proposal: AI Automated Drawing Compliance Engine for BIMS Uganda:
+Prepared by: Byaruhanga Raymond
+date: 02nd October 2026
+
+1Executive Summary
+This proposal outlines the technical architecture, development scope, and implementation plan for upgrading the Building Industry Management System (BIMS) Uganda ecosystem (under the National Building Review Board - NBRB mandate).
+The primary objective is to introduce an AI-driven Automated Plan Checking & Compliance Assessment Engine integrated into the BIMS mobile platform. By analyzing 2D/vector PDF engineering submissions across Architectural, Structural, Mechanical, and Electrical (MEP) disciplines, the system benchmarks drawing parameters against statutory instruments—including the Uganda National Building Code (2019), the Building Control Regulations (2020), the Building Control (Amendment) Act, and any other documents supplied.
+The technical solution combines a hybrid analytical pipeline (deterministic vector parsing via Python combined with Multimodal Vision AI and a Vector-RAG standard engine) with a dual-backend infrastructure running Laravel (API, authentication, workflow orchestration) and FastAPI/Celery (Python AI/CV computation).
+2Project Scope & Functional Deliverables
+2.1 Multi-Tiered Project & Floor Hierarchy
+●
+Project Creation: Professionals register projects tagged with local municipal authority metadata, plot specifications, and building occupancy classes (e.g., Category A, B, or C under the Building Control Regulations).
+●
+Block & Floor Management: professionals can configure multi-block estates, define dynamic floor counts per block, and assign drawings to individual levels.
+●
+Discipline Categorization: Each floor supports four primary engineering categories:
+1.
+Architectural (Floor Plans): Egress pathways, minimum room dimensions, light/ventilation ratios (window-to-floor area), door swing clearances, and accessibility standards (PWD compliance).
+2.
+Structural Drawings: Column/beam schedules, grid line consistency, reinforcement notations, and foundation layout checks.
+3.
+Mechanical Drawings: HVAC layouts, plumbing/drainage slope indications, pipe sizing schedules, storm-water disposal, and fire suppression systems.
+4.
+Electrical Drawings: Power distribution schedules, single-line diagrams, illumination coverage, emergency lighting circuits, and load calculations.
+●
+Document Versioning & Audit History: Re-uploading a drawing does not overwrite historical records. The system creates an incremental version (e.g., v1.0 > v1.1), archives previous validation logs, and allows side-by-side compliance diffing.
+2.2 Collaboration & Secure Access Control
+●
+Role-Based Project Sharing: Primary professionals can issue invite links or direct email invites with granular permissions:
+○
+Project Lead / professional: Full administrative control and submission rights.
+○
+Discipline Specialist: Dedicated write/upload privileges for their respective discipline (e.g., Mechanical Engineer uploading HVAC drawings only).
+●
+Anti-Duplication Protocol: Every project generates a secure, signed token link. Public access requests require owner authorization, preventing duplicate project registrations across the national portal.
+2.3 Interactive Floating AI Assistant
+●
+Contextual Copilot: An in-app floating assistant accessible during drawing review to answer code queries (e.g., "What is the required window ventilation area under the Uganda National Building Code for a habitable room?").
+●
+Avatar Personalization: Users can toggle between animated characters (e.g., Site Engineer Kigozi, Architect Namubiru, Inspector Okello) powered by Lottie/Rive vector animations with idle, listening, and speaking states.
+2.4 Administrative RAG Management
+●
+Admin Regulatory Knowledge Base: Portal administrators can upload official statutory PDFs (Uganda National Building Code volumes, statutory instruments, accessibility standards, local physical planning circulars).
+●
+Document Pipeline: Automated semantic chunking, vector embedding, and metadata indexing into a vector database to provide grounded references for all AI compliance decisions.
+2.5 Automated Notifications & Unified PDF Reporting
+●
+Asynchronous Progress Tracking: Real-time push notifications and status badges indicating progress per drawing.
+●
+Consolidated Project Report: When all uploaded floors across all disciplines complete processing, the orchestrator triggers automated assembly of a signed, comprehensive Project Compliance Audit Report and emails it to all stakeholders.
+3System Architecture & Technical Stack
+Technology Breakdown
+Layer
+Recommended Technology
+Justification
+Mobile Client
+Flutter (Dart)
+Unified single codebase for Android & iOS; high-performance rendering of heavy CAD-derived vector PDFs; native support for Lottie/Rive interactive animations.
+Primary Backend
+Laravel 11 (PHP 8.3)
+Rapid implementation of complex relational models (Projects, Blocks, Floors, Versions), native multi-auth, queue orchestrations (Job Batches), and enterprise ecosystem maturity.
+AI Microservice
+Python (FastAPI + Celery)
+Direct access to scientific, computer-vision, and PDF parsing ecosystems (PyMuPDF, OpenCV, pdfplumber, LangChain).
+AI Vision / LLM
+Gemini 2.5 Flash / Pro
+Native multimodal high-resolution PDF ingestion, OCR callout extraction, and structured JSON parsing.
+Vector Database
+pgvector (PostgreSQL)
+Simplifies infrastructure by consolidating standard relational data and RAG embeddings within a single PostgreSQL database cluster.
+Message Broker
+Redis
+Inter-service communication between Laravel and Celery Python workers; real-time job status pub/sub.
+PDF Generation
+WeasyPrint / Typst
+Programmatic, pixel-perfect rendering of the final engineering compliance report from HTML/CSS templates.
+4End-to-End Analysis Workflow & Architecture
+Phase 1: Pre-Flight Document Validation
+Before executing heavy semantic or geometric audits, the Python service validates document readiness:
+1.
+DPI & Rasterization Audit: Verifies the PDF has a minimum text readability threshold (flags scans below 200 DPI).
+2.
+Scale Validation: Scans the title block and viewport for an explicit numerical scale (e.g., 1:100, 1:50) or graphic bar. If absent, the analysis halts immediately with a clear rejection notice: "Missing Scale Bar".
+3.
+Layer & Annotation Health: Verifies the drawing contains recognized annotation layers or readable dimension lines.
+Phase 2: Hybrid Extraction Engine
+●
+Deterministic Vector Measuring: For vector-based PDFs, PyMuPDF extracts the exact line endpoints of openings, doors, and boundary walls, applying the detected scale ratio to derive ground-truth metric dimensions.
+●
+Semantic Analysis via Gemini Vision: Gemini analyzes the sheet to identify functional labels (e.g., classifying a room as "Kitchen" vs. "Bedroom"), read window schedule tables, match tags (e.g., W-01, D-02), and isolate structural callouts.
+Phase 3: RAG-Augmented Verification
+●
+Extracted values are compared against vectorized regulatory standards retrieved from pgvector based on room type and building category.
+●
+Rule Check Example:
+●
+If discrepancies arise, the engine extracts the specific clause from the Uganda Building Control Regulations to cite in the output.
+Phase 4: Job Batch Tracking & Final Assembly
+Laravel manages an overall Batch Job Pipeline using its native queue tracking:
+5Project Roadmap & Implementation Schedule
+Phase
+Duration
+Core Deliverables & Milestones
+Phase 1: Architecture & RAG Ingestion
+Weeks 1–2
+• Laravel project structure, migrations, authentication.
+• Administrative panel for uploading Ugandan Building Standard PDFs.
+• PDF chunking, embedding, and pgvector indexing pipeline.
+Phase 2: Python AI & Geometry Service
+Weeks 3–5
+• Vector geometry measurement module using PyMuPDF.
+• Pre-flight checker (resolution, scale detection,
+label clarity).
+• Gemini Vision prompting pipeline with JSON Schema constraints.
+Phase 3: Mobile UI & Workflow
+Weeks 5–9
+• Flutter screens: Project/Block/Floor navigation.
+• Discipline-specific upload handlers and version history logs.
+• Project collaboration links and role-based permissions.
+• Floating chatbot with selectable Rive/Lottie animated avatars.
+Phase 4: Orchestration & Report Engine
+Weeks 9–10
+• Redis/Celery queue integration with Laravel batch tracking.
+• Automated compilation of multi-discipline PDF audit reports.
+• Multi-channel notification pipeline (In-app, Push, Email).
+Phase 5: Pilot Testing & UAT
+Weeks 10–12
+• Validation runs against benchmark municipal submissions in Kampala.
+• System performance tuning, latency optimization, and final deployment.
+6Risk Analysis & Mitigation Strategies
+1.
+Risk: Poor Quality / Photocopied Blueprint Submissions
+○
+Mitigation: The deterministic Pre-Flight Checker rejects sub-standard documents before running token-heavy LLM calls, presenting the user with precise re-upload criteria (e.g., "Resolution below 200 DPI; re-export original vector PDF from CAD/Revit").
+2.
+Risk: AI False Positives on Complex Blueprints
+○
+Mitigation: Hybrid verification. Critical dimensional checks (e.g., egress widths, corridor clearances) are verified mathematically against scale vectors rather than relying entirely on visual estimation.
+3.
+Risk: Regulatory Discrepancies Across Jurisdictions
+○
+Mitigation: Strict RAG scoping. Each audit references the specific section and clause number from the official Ugandan regulatory corpus, maintaining full traceability for building control officers.

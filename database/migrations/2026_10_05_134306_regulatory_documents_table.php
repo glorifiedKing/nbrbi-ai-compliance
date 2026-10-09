@@ -15,6 +15,10 @@ return new class extends Migration
             $table->string('category'); // architectural, structural, mep, fire_safety
             $table->string('edition_year', 4);
             $table->string('file_path');
+            $table->string('classification')->nullable(); // eg A,B,C
+            $table->unsignedInteger('total_chunks')->default(0);
+            $table->string('status')->default('pending'); // pending, processing, indexed, failed
+            $table->text('error_message')->nullable();
             $table->boolean('is_active')->default(true);
             $table->foreignUuid('uploaded_by')->constrained('users');
             $table->timestamps();
@@ -24,6 +28,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('regulatory_document_id')->constrained()->cascadeOnDelete();
             $table->string('clause_number')->nullable(); // e.g., Section 14.3.2
+            $table->string('clause_title')->nullable();
             $table->text('content');
             $table->jsonb('metadata')->nullable(); // { "occupancy": "Residential", "topic": "Ventilation" }
             $table->timestamps();
