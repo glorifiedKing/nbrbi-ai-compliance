@@ -57,7 +57,7 @@ class ProcessDrawingJob implements ShouldQueue
 
         try {
             $result = $fastApiService->analyzeDrawing(
-                version: $this->drawingVersion,
+                versionOrAudit: $this->drawingVersion,
                 absoluteFilePath: $absolutePath,
                 discipline: $discipline,
                 occupancyClass: $occupancyClass

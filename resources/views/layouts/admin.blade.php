@@ -73,6 +73,14 @@
                     <span>Overview Dashboard</span>
                 </a>
 
+                <a href="{{ route('admin.quick-audit.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('admin.quick-audit.*') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Quick Drawing Audit</span>
+                </a>
+
                 <a href="{{ route('admin.regulatory.index') }}" 
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('admin.regulatory.*') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,11 +124,26 @@
                     API Reference ↗
                 </a>
                 <div class="h-4 w-px bg-slate-800"></div>
-                <div class="flex items-center gap-2 text-sm font-medium text-slate-300">
-                    <div class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
-                        AD
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 text-xs font-medium text-slate-300">
+                        <div class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                            {{ substr(auth()->user()->name ?? 'AD', 0, 2) }}
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <div class="font-bold text-slate-200">{{ auth()->user()->name ?? 'Administrator' }}</div>
+                            <div class="text-[10px] text-emerald-400 font-mono">Role: {{ strtoupper(auth()->user()->role ?? 'ADMIN') }}</div>
+                        </div>
                     </div>
-                    <span>Administrator</span>
+
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                        @csrf
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-red-500/20 text-slate-400 hover:text-red-400 text-xs font-medium border border-slate-700 hover:border-red-500/30 transition-all flex items-center gap-1.5" title="Log Out">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="hidden md:inline">Log Out</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </header>

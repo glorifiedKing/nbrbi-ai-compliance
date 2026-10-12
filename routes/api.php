@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CopilotController;
 use App\Http\Controllers\Api\DrawingController;
 use App\Http\Controllers\Api\InternalWebhookController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\QuickAuditController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,10 +29,17 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/auth/register', [AuthController::class, 'register'])->name('api.v1.auth.register');
     Route::post('/auth/login', [AuthController::class, 'login'])->name('api.v1.auth.login');
 
+    // Quick Single Drawing Audit (Public or Token-authenticated)
+    Route::post('/quick-audit', [QuickAuditController::class, 'store'])->name('api.v1.quick-audit.store');
+    Route::get('/quick-audit/{quickAudit}', [QuickAuditController::class, 'show'])->name('api.v1.quick-audit.show');
+
     // Protected Routes
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/auth/profile', [AuthController::class, 'profile'])->name('api.v1.auth.profile');
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
+
+        // Quick Audits List
+        Route::get('/quick-audits', [QuickAuditController::class, 'index'])->name('api.v1.quick-audit.index');
 
         // Projects
         Route::get('/projects', [ProjectController::class, 'index'])->name('api.v1.projects.index');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Services\FeeCalculationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -95,6 +96,27 @@ class ReportController extends Controller
             default => 'IN_PROGRESS',
         };
 
+        $blockFloorAreas = [];
+        foreach ($project->blocks as $block) {
+            $floorsData = [];
+            foreach ($block->floors as $floor) {
+                $floorsData[] = [
+                    'floor_id' => $floor->id,
+                    'floor_number' => $floor->floor_number,
+                    'name' => $floor->name,
+                    'gross_floor_area_sqm' => (float) ($floor->gross_floor_area_sqm ?? 0.0),
+                ];
+            }
+            $blockFloorAreas[] = [
+                'block_id' => $block->id,
+                'name' => $block->name,
+                'total_floor_area_sqm' => (float) ($block->total_floor_area_sqm ?? 0.0),
+                'floors' => $floorsData,
+            ];
+        }
+
+        $feeRate = $project->fee_rate_per_sqm_ugx ?? FeeCalculationService::getRatePerSqm($project->occupancy_class);
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -104,6 +126,13 @@ class ReportController extends Controller
                 'occupancy_class' => $project->occupancy_class,
                 'owner' => $project->owner,
                 'overall_compliance_status' => $overallProjectStatus,
+                'floor_area_analysis' => [
+                    'total_project_floor_area_sqm' => (float) ($project->total_floor_area_sqm ?? 0.0),
+                    'statutory_fee_rate_per_sqm_ugx' => (float) $feeRate,
+                    'estimated_statutory_fee_ugx' => (float) ($project->estimated_statutory_fee_ugx ?? 0.0),
+                    'currency' => 'UGX',
+                    'blocks' => $blockFloorAreas,
+                ],
                 'audit_summary' => [
                     'total_drawings' => $totalDrawings,
                     'processed_drawings' => $processedDrawings,

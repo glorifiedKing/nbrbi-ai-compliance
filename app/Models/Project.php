@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FeeCalculationService;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,9 @@ class Project extends Model
         'name',
         'reference_number',
         'occupancy_class',
+        'total_floor_area_sqm',
+        'fee_rate_per_sqm_ugx',
+        'estimated_statutory_fee_ugx',
         'share_token',
         'is_public',
         'status',
@@ -35,7 +39,18 @@ class Project extends Model
     {
         return [
             'is_public' => 'boolean',
+            'total_floor_area_sqm' => 'float',
+            'fee_rate_per_sqm_ugx' => 'float',
+            'estimated_statutory_fee_ugx' => 'float',
         ];
+    }
+
+    /**
+     * Recalculates block and project total floor areas and statutory fees.
+     */
+    public function recalculateTotals(): self
+    {
+        return FeeCalculationService::recalculateProjectTotals($this);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DrawingVersion;
+use App\Models\QuickAudit;
 use App\Models\RegulatoryDocument;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -77,23 +78,30 @@ class FastApiService
     }
 
     /**
-     * Trigger asynchronous compliance analysis for an uploaded drawing version.
+     * Trigger asynchronous compliance analysis for an uploaded drawing version or quick audit.
      *
      * @return array<string, mixed>
      */
     public function analyzeDrawing(
-        DrawingVersion $version,
+        DrawingVersion|QuickAudit|string $versionOrAudit,
         string $absoluteFilePath,
         string $discipline,
-        ?string $occupancyClass = 'Class A (Residential)'
+        ?string $occupancyClass = 'Class A (Residential)',
+        ?string $drawingId = null
     ): array {
+        $versionId = is_string($versionOrAudit) ? $versionOrAudit : $versionOrAudit->id;
+
+        if ($versionOrAudit instanceof DrawingVersion) {
+            $drawingId = $versionOrAudit->drawing_id;
+        }
+
         $url = "{$this->baseUrl}/api/v1/analyze-drawing";
 
-        Log::info("Triggering drawing analysis for version [{$version->id}] on FastAPI: {$url}");
+        Log::info("Triggering drawing analysis for ID [{$versionId}] on FastAPI: {$url}");
 
         $payload = [
-            'drawing_version_id' => $version->id,
-            'drawing_id' => $version->drawing_id,
+            'drawing_version_id' => $versionId,
+            'drawing_id' => $drawingId,
             'discipline' => strtolower($discipline),
             'file_path' => $absoluteFilePath,
             'occupancy_class' => $occupancyClass ?? 'Class A (Residential)',

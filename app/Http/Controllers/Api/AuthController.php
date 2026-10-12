@@ -28,6 +28,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'bims_id' => $validated['bims_id'] ?? null,
+            'role' => 'user',
         ]);
 
         $token = $user->createToken('mobile-app-token')->plainTextToken;

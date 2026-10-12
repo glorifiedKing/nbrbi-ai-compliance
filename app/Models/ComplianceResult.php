@@ -18,6 +18,7 @@ class ComplianceResult extends Model
         'drawing_version_id',
         'preflight_metrics',
         'extracted_geometry',
+        'floor_area_metrics',
         'discrepancies',
         'summary_metrics',
         'overall_status',
@@ -32,6 +33,7 @@ class ComplianceResult extends Model
         return [
             'preflight_metrics' => 'array',
             'extracted_geometry' => 'array',
+            'floor_area_metrics' => 'array',
             'discrepancies' => 'array',
             'summary_metrics' => 'array',
             'analyzed_at' => 'datetime',

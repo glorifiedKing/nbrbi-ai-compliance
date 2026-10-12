@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +16,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Seed Default Administrative User
+        User::updateOrCreate(
+            ['email' => 'admin@nbrb.go.ug'],
+            [
+                'name' => 'NBRB System Administrator',
+                'password' => Hash::make('Admin@NBRB2026'),
+                'bims_id' => 'NBRB-ADM-001',
+                'role' => 'admin',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // 2. Seed Default Standard Professional User
+        User::updateOrCreate(
+            ['email' => 'engineer@bims.ug'],
+            [
+                'name' => 'Eng. Raymond Kigozi',
+                'password' => Hash::make('Engineer@2026'),
+                'bims_id' => 'BIMS-PE-9021',
+                'role' => 'user',
+            ]
+        );
     }
 }

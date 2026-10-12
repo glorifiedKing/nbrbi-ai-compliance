@@ -19,7 +19,18 @@ class Block extends Model
         'project_id',
         'name',
         'description',
+        'total_floor_area_sqm',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'total_floor_area_sqm' => 'float',
+        ];
+    }
 
     /**
      * @return BelongsTo<Project, $this>

@@ -19,6 +19,7 @@ class Floor extends Model
         'block_id',
         'floor_number',
         'name',
+        'gross_floor_area_sqm',
     ];
 
     /**
@@ -28,6 +29,7 @@ class Floor extends Model
     {
         return [
             'floor_number' => 'integer',
+            'gross_floor_area_sqm' => 'float',
         ];
     }
 

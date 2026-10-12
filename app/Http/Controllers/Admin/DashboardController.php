@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ComplianceResult;
 use App\Models\DrawingVersion;
 use App\Models\Project;
+use App\Models\QuickAudit;
 use App\Models\RegulatoryChunk;
 use App\Models\RegulatoryDocument;
 use App\Services\FastApiService;
@@ -39,6 +40,9 @@ class DashboardController extends Controller
 
         $fastApiHealthy = $fastApiService->healthCheck();
 
+        $totalAuditedFloorAreaSqm = (float) (Project::sum('total_floor_area_sqm') + QuickAudit::sum('gross_floor_area_sqm'));
+        $totalEstimatedFeesUgx = (float) (Project::sum('estimated_statutory_fee_ugx') + QuickAudit::sum('estimated_statutory_fee_ugx'));
+
         return view('admin.dashboard', compact(
             'totalProjects',
             'totalDocuments',
@@ -50,7 +54,9 @@ class DashboardController extends Controller
             'complianceRate',
             'recentDocuments',
             'recentSubmissions',
-            'fastApiHealthy'
+            'fastApiHealthy',
+            'totalAuditedFloorAreaSqm',
+            'totalEstimatedFeesUgx'
         ));
     }
 }

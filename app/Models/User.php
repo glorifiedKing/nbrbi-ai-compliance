@@ -27,7 +27,16 @@ class User extends Authenticatable
         'email',
         'password',
         'bims_id',
+        'role',
     ];
+
+    /**
+     * Check if user has administrative privileges.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 
     /**
      * The attributes that should be hidden for serialization.

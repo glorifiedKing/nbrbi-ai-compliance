@@ -107,6 +107,49 @@
         </div>
     </div>
 
+    <!-- Architectural Floor Area & Statutory Fee Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="p-5 rounded-2xl glass-panel border border-teal-500/20 bg-teal-950/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-teal-400 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Total Audited Gross Floor Area (GFA)
+                </span>
+                <div class="text-3xl font-extrabold text-slate-100 tracking-tight mt-2">
+                    {{ number_format($totalAuditedFloorAreaSqm, 2) }} <span class="text-lg font-medium text-teal-400">m²</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Extracted from architectural floor plans across projects & quick audits</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="p-5 rounded-2xl glass-panel border border-emerald-500/20 bg-emerald-950/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Total Statutory Plan Examination Fees
+                </span>
+                <div class="text-3xl font-extrabold text-slate-100 tracking-tight mt-2">
+                    <span class="text-lg font-medium text-emerald-400">UGX</span> {{ number_format($totalEstimatedFeesUgx, 0) }}
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Computed per m² under Uganda Building Control Regulations fee schedules</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
     <!-- Dual column content -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left: Regulatory Standards Corpus -->
