@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         Auth::viaRequest('remote-sanctum', function (Request $request) {
             $token = $request->bearerToken();
 
-            if (! $token) {
+            if (!$token) {
                 return null; // No token provided, request is unauthenticated
             }
 
@@ -42,10 +43,11 @@ class AppServiceProvider extends ServiceProvider
                     $userData = $response->json();
 
                     $user = User::firstOrCreate(
-                        ['email' => $userData['email']],
+                        ['email' => $userData['data']['email']],
                         [
-                            'name' => $userData['name'],
+                            'name' => $userData['data']['name'],
                             'password' => bcrypt(str()->random(16)), // Dummy password
+                            'role' => 'user',
                         ]
                     );
 
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
                 }
             } catch (\Exception $e) {
                 // Log error or handle primary app downtime
+                Log::error('Remote Sanctum authentication failed: ' . $e->getMessage());
                 return null;
             }
 
