@@ -25,11 +25,14 @@ class QuickAuditController extends Controller
         $originalName = $file->getClientOriginalName();
         $fileSize = $file->getSize();
         $fileHash = hash_file('sha256', $file->getRealPath());
-        $user = $request->user();
+        $user = $request->user('api') ?? $request->user('sanctum');
 
+        if ($user) {
+            $request->setUserResolver(fn() => $user);
+        }
         $storedPath = $file->storeAs(
             'quick_audits',
-            'quick_'.time().'_'.$originalName,
+            'quick_' . time() . '_' . $originalName,
             'local'
         );
 
@@ -96,7 +99,7 @@ class QuickAuditController extends Controller
     {
         $userId = $request->user()?->id;
 
-        $audits = QuickAudit::when($userId, fn ($q) => $q->where('user_id', $userId))
+        $audits = QuickAudit::when($userId, fn($q) => $q->where('user_id', $userId))
             ->latest()
             ->paginate(15);
 
