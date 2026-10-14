@@ -42,6 +42,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'remote-sanctum',
+            'provider' => 'users', // This provider is bypassed since we use GenericUser above
+        ],
     ],
 
     /*

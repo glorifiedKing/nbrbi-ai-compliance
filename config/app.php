@@ -105,6 +105,8 @@ return [
         ),
     ],
 
+    'in_autologin' => env('APP_IN_AUTOLOGIN', false),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver

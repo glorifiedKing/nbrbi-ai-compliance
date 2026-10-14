@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    'bims' => [
+        'auth_url' => env('BIMS_AUTH_URL', 'https://api.test.bims.go.ug/v1/pro/account'),
+    ],
+
     'fastapi' => [
         'base_url' => env('FASTAPI_BASE_URL', 'http://127.0.0.1:8001'),
         'secret' => env('FASTAPI_INTERNAL_SECRET', 'abc'),
