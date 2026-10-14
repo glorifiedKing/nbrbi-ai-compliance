@@ -7,19 +7,19 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Instant Single Drawing Compliance Audit</h1>
-            <p class="text-sm text-slate-600 mt-1">Quickly benchmark a single 2D/vector blueprint against Uganda Building Regulations without creating a full project hierarchy.</p>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Instant Single Drawing Compliance Audit</h1>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">Quickly benchmark a single 2D/vector blueprint against Uganda Building Regulations without creating a full project hierarchy.</p>
         </div>
     </div>
 
     <!-- Quick Upload Form Card -->
-    <div class="p-8 rounded-2xl glass-panel relative overflow-hidden">
+    <div class="p-4 sm:p-6 lg:p-8 rounded-2xl glass-panel relative overflow-hidden">
         <div class="absolute -right-12 -top-12 w-64 h-64 bg-[#046938]/5 rounded-full blur-3xl pointer-events-none"></div>
 
         <form method="POST" action="{{ route('admin.quick-audit.store') }}" enctype="multipart/form-data" class="space-y-6 relative z-10">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <!-- Engineering Discipline -->
                 <div>
                     <label for="discipline" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
@@ -54,7 +54,7 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                     Upload Drawing PDF Document <span class="text-red-500">*</span>
                 </label>
-                <div class="border-2 border-dashed border-slate-300 hover:border-[#046938] rounded-2xl p-8 text-center bg-slate-50/70 hover:bg-[#046938]/5 transition-all cursor-pointer relative group">
+                <div class="border-2 border-dashed border-slate-300 hover:border-[#046938] rounded-2xl p-5 sm:p-8 text-center bg-slate-50/70 hover:bg-[#046938]/5 transition-all cursor-pointer relative group">
                     <input type="file" id="drawing_file" name="drawing_file" accept=".pdf" required
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                            onchange="updateQuickFileName(this)">

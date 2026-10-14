@@ -5,15 +5,14 @@
 @section('content')
     <div class="space-y-8">
         <!-- Header banner -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
             <div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight">AI Compliance & Regulatory Control</h1>
-                <p class="text-sm text-slate-500 mt-1 font-medium">National Building Review Board • Automated Plan Checking
-                    Engine</p>
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">AI Compliance & Regulatory Control</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">National Building Review Board • Automated Plan Checking Engine</p>
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.regulatory.create') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#046938] hover:bg-[#03522c] text-white text-sm font-bold transition-all shadow-sm hover:shadow">
+                    class="w-full sm:w-auto justify-center inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#046938] hover:bg-[#03522c] text-white text-xs sm:text-sm font-bold transition-all shadow-sm hover:shadow">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -24,31 +23,31 @@
 
         <!-- Microservice Status Banner -->
         <div
-            class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between border-l-4 {{ $fastApiHealthy ? 'border-l-[#046938]' : 'border-l-[#DEA74F]' }}">
-            <div class="flex items-center gap-3.5">
-                <div class="w-3 h-3 rounded-full {{ $fastApiHealthy ? 'bg-[#046938] animate-ping' : 'bg-[#DEA74F]' }}">
+            class="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-l-4 {{ $fastApiHealthy ? 'border-l-[#046938]' : 'border-l-[#DEA74F]' }}">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-3 h-3 rounded-full shrink-0 {{ $fastApiHealthy ? 'bg-[#046938] animate-ping' : 'bg-[#DEA74F]' }}">
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-slate-800">
+                <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate">
                         Python AI Microservice:
                         <span class="{{ $fastApiHealthy ? 'text-[#046938]' : 'text-[#DEA74F] font-black' }}">
                             {{ $fastApiHealthy ? 'Connected & Ready (FastAPI + Celery)' : 'Microservice Offline / Standby' }}
                         </span>
                     </h4>
-                    <p class="text-xs text-slate-500">vector extraction + Gemini multimodal auditor</p>
+                    <p class="text-[11px] sm:text-xs text-slate-500">vector extraction + Gemini multimodal auditor</p>
                 </div>
             </div>
             <span
-                class="text-xs font-mono font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                class="self-start sm:self-auto text-[11px] sm:text-xs font-mono font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 max-w-full truncate">
                 {{ config('services.fastapi.base_url') }}
             </span>
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             <!-- Card 1 -->
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Statutory Standards</span>
                     <span class="p-2.5 rounded-xl bg-[#046938]/10 text-[#046938] border border-[#046938]/20">
@@ -59,7 +58,7 @@
                     </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-3xl font-black text-slate-900 tracking-tight">{{ $totalDocuments }}</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $totalDocuments }}</div>
                     <p class="text-xs text-slate-500 mt-1 font-medium"><span
                             class="text-[#046938] font-bold">{{ $totalChunks }}</span> vectorized clauses in pgvector</p>
                 </div>
@@ -67,7 +66,7 @@
 
             <!-- Card 2 -->
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Projects Registered</span>
                     <span class="p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200">
@@ -78,14 +77,14 @@
                     </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-3xl font-black text-slate-900 tracking-tight">{{ $totalProjects }}</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $totalProjects }}</div>
                     <p class="text-xs text-slate-500 mt-1 font-medium">Multi-block Ugandan estate submissions</p>
                 </div>
             </div>
 
             <!-- Card 3 -->
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Drawings Audited</span>
                     <span class="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
@@ -96,14 +95,14 @@
                     </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-3xl font-black text-slate-900 tracking-tight">{{ $totalVersions }}</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $totalVersions }}</div>
                     <p class="text-xs text-slate-500 mt-1 font-medium">Arch, Struct, Mech & Elec versions</p>
                 </div>
             </div>
 
             <!-- Card 4 -->
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Compliance Pass Rate</span>
                     <span class="p-2.5 rounded-xl bg-[#DEA74F]/15 text-[#9a6a1e] border border-[#DEA74F]/30">
@@ -114,7 +113,7 @@
                     </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-3xl font-black text-slate-900 tracking-tight">{{ $complianceRate }}%</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $complianceRate }}%</div>
                     <p class="text-xs text-slate-500 mt-1 font-medium"><span
                             class="text-[#046938] font-bold">{{ $passCount }} Pass</span> • <span
                             class="text-red-600 font-bold">{{ $failCount }} Non-compliant</span></p>
@@ -123,27 +122,26 @@
         </div>
 
         <!-- Architectural Floor Area & Statutory Fee Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm border-l-4 border-l-[#046938] flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#046938] flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm border-l-4 border-l-[#046938] flex items-center justify-between gap-3 sm:gap-4">
+                <div class="min-w-0">
+                    <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#046938] flex items-center gap-1.5 truncate">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                         </svg>
-                        Total Audited Gross Floor Area (GFA)
+                        <span class="truncate">Total Audited Floor Area (GFA)</span>
                     </span>
-                    <div class="text-3xl font-black text-slate-900 tracking-tight mt-2">
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5 sm:mt-2 truncate">
                         {{ number_format($totalAuditedFloorAreaSqm, 2) }} <span
-                            class="text-lg font-bold text-[#046938]">m²</span>
+                            class="text-base sm:text-lg font-bold text-[#046938]">m²</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Extracted from architectural floor plans across projects & quick
-                        audits</p>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-1 sm:line-clamp-none">Extracted from architectural plans across projects & quick audits</p>
                 </div>
                 <div
-                    class="w-12 h-12 rounded-2xl bg-[#046938]/10 border border-[#046938]/20 flex items-center justify-center text-[#046938]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#046938]/10 border border-[#046938]/20 flex items-center justify-center text-[#046938] shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
@@ -151,25 +149,24 @@
             </div>
 
             <div
-                class="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm border-l-4 border-l-[#DEA74F] flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#9a6a1e] flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm border-l-4 border-l-[#DEA74F] flex items-center justify-between gap-3 sm:gap-4">
+                <div class="min-w-0">
+                    <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#9a6a1e] flex items-center gap-1.5 truncate">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        Total Statutory Plan Examination Fees
+                        <span class="truncate">Statutory Examination Fees</span>
                     </span>
-                    <div class="text-3xl font-black text-slate-900 tracking-tight mt-2">
-                        <span class="text-lg font-bold text-[#DEA74F]">UGX</span>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5 sm:mt-2 truncate">
+                        <span class="text-base sm:text-lg font-bold text-[#DEA74F]">UGX</span>
                         {{ number_format($totalEstimatedFeesUgx, 0) }}
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Computed per m² under Uganda Building Control Regulations fee
-                        schedules</p>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-1 sm:line-clamp-none">Computed per m² under Uganda Building Control fee schedules</p>
                 </div>
                 <div
-                    class="w-12 h-12 rounded-2xl bg-[#DEA74F]/15 border border-[#DEA74F]/30 flex items-center justify-center text-[#9a6a1e]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#DEA74F]/15 border border-[#DEA74F]/30 flex items-center justify-center text-[#9a6a1e] shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -178,9 +175,9 @@
         </div>
 
         <!-- Dual column content -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             <!-- Left: Regulatory Standards Corpus -->
-            <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+            <div class="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
                         <h3 class="text-base font-bold text-slate-900">Official Statutory Corpus (RAG)</h3>
@@ -242,7 +239,7 @@
             </div>
 
             <!-- Right: Recent Drawing Submissions -->
-            <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+            <div class="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
                         <h3 class="text-base font-bold text-slate-900">Recent Drawing Audits</h3>
