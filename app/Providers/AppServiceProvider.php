@@ -43,16 +43,16 @@ class AppServiceProvider extends ServiceProvider
                     $userData = $response->json();
 
                     $user = User::firstOrCreate(
-                        ['email' => $userData['data']['email']],
+                        ['email' => $userData['email']],
                         [
-                            'name' => $userData['data']['name'],
+                            'name' => $userData['name'],
                             'password' => bcrypt(str()->random(16)), // Dummy password
                             'role' => 'user',
                         ]
                     );
 
                     // Return a GenericUser instance populated with the Primary App's data
-                    return new GenericUser($userData['data']);
+                    return new GenericUser($userData);
 
                 }
                 if ($response->failed()) {
