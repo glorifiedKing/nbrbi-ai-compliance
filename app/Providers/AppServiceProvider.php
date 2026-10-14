@@ -41,7 +41,10 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($response->successful()) {
                     $userData = $response->json();
+                    $bodyData = $response->body();
 
+                    Log::info('Remote Sanctum authentication successful: ' . json_encode($userData));
+                    Log::info('Remote Sanctum authentication successful body: ' . json_encode($bodyData));
                     $user = User::firstOrCreate(
                         ['email' => $userData['email']],
                         [
