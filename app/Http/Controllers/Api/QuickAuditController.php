@@ -97,7 +97,14 @@ class QuickAuditController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $userId = $request->user()?->id;
+
+        $user = $request->user('api') ?? $request->user('sanctum');
+
+        if ($user) {
+            $request->setUserResolver(fn() => $user);
+        }
+
+        $userId = $user?->id;
 
         $audits = QuickAudit::when($userId, fn($q) => $q->where('user_id', $userId))
             ->latest()
