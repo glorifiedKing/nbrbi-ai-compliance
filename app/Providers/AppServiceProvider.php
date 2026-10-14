@@ -55,6 +55,10 @@ class AppServiceProvider extends ServiceProvider
                     return new GenericUser($userData['data']);
 
                 }
+                if ($response->failed()) {
+                    Log::error('Remote Sanctum authentication failed: ' . $response->body());
+                    return null;
+                }
             } catch (\Exception $e) {
                 // Log error or handle primary app downtime
                 Log::error('Remote Sanctum authentication failed: ' . $e->getMessage());
