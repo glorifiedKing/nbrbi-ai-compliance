@@ -21,7 +21,7 @@ class FastApiService
     {
         $this->baseUrl = rtrim((string) config('services.fastapi.base_url', 'http://127.0.0.1:8001'), '/');
         $this->secret = (string) config('services.fastapi.secret', 'bims-secure-internal-secret');
-        $this->timeout = (int) config('services.fastapi.timeout', 60);
+        $this->timeout = (int) config('services.fastapi.timeout', 120);
     }
 
     /**
@@ -34,7 +34,7 @@ class FastApiService
 
             return $response->successful();
         } catch (\Throwable $e) {
-            Log::warning('FastAPI health check failed: '.$e->getMessage());
+            Log::warning('FastAPI health check failed: ' . $e->getMessage());
 
             return false;
         }
@@ -47,7 +47,7 @@ class FastApiService
      */
     public function ingestRegulatoryDocument(RegulatoryDocument $document, string $absoluteFilePath): array
     {
-        if (! file_exists($absoluteFilePath)) {
+        if (!file_exists($absoluteFilePath)) {
             throw new RuntimeException("Regulatory PDF file not found at path: {$absoluteFilePath}");
         }
 
@@ -68,7 +68,7 @@ class FastApiService
                 'document_id' => $document->id,
             ]);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $errorMessage = $response->json('detail') ?? $response->body() ?? 'FastAPI ingestion error';
             Log::error("FastAPI regulatory ingestion failed [{$response->status()}]: {$errorMessage}");
             throw new RuntimeException("FastAPI ingestion failed: {$errorMessage}");
@@ -107,7 +107,7 @@ class FastApiService
             'occupancy_class' => $occupancyClass ?? 'Class A (Residential)',
         ];
 
-        $response = Http::timeout(15)
+        $response = Http::timeout(120)
             ->withHeaders([
                 'X-Internal-Secret' => $this->secret,
                 'Content-Type' => 'application/json',
@@ -115,7 +115,7 @@ class FastApiService
             ])
             ->post($url, $payload);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $errorMessage = $response->json('detail') ?? $response->body() ?? 'FastAPI drawing analysis trigger failed';
             Log::error("FastAPI drawing analysis request failed [{$response->status()}]: {$errorMessage}");
             throw new RuntimeException("FastAPI analysis trigger failed: {$errorMessage}");
