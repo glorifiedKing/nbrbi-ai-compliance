@@ -55,7 +55,7 @@ class CopilotController extends Controller
             ),
             provider: [
                     //Lab::Gemini->value => 'gemini-3.1-flash-lite',
-                Lab::Gemini->value => 'gemini-2.5-flash',
+                Lab::Gemini->value => 'gemini-3-flash-preview',
             ],
         );
 
