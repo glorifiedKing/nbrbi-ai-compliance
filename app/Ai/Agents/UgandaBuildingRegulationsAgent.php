@@ -9,6 +9,7 @@ use Laravel\Ai\Promptable;
 use Laravel\Ai\Tools\SimilaritySearch;
 use Laravel\Ai\Embeddings;
 use Laravel\Ai\Enums\Lab;
+use App\Ai\Tools\RegulationDatabaseSearch;
 use Stringable;
 
 class UgandaBuildingRegulationsAgent implements Agent, HasTools
@@ -49,33 +50,34 @@ PROMPT;
     public function tools(): iterable
     {
         return [
-            new SimilaritySearch(
-                using: function (string $query) {
-                    $response = Embeddings::for([$query])
-                        ->generate(
-                            Lab::Gemini,
-                            'gemini-embedding-001'
-                        );
+            new RegulationDatabaseSearch(),
+            // new SimilaritySearch(
+            //     using: function (string $query) {
+            //         $response = Embeddings::for([$query])
+            //             ->generate(
+            //                 Lab::Gemini,
+            //                 'gemini-embedding-001'
+            //             );
 
-                    $embedding = $response->embeddings[0];
+            //         $embedding = $response->embeddings[0];
 
-                    return RegulatoryChunk::query()
-                        ->whereNotNull('embedding')
-                        ->whereHas(
-                            'document',
-                            fn($documents) =>
-                                $documents->where('is_active', true)
-                        )
-                        ->with('document')
-                        ->whereVectorSimilarTo(
-                            'embedding',
-                            $embedding,
-                            minSimilarity: 0.40
-                        )
-                        ->limit(8)
-                        ->get();
-                }
-            ),
+            //         return RegulatoryChunk::query()
+            //             ->whereNotNull('embedding')
+            //             ->whereHas(
+            //                 'document',
+            //                 fn($documents) =>
+            //                     $documents->where('is_active', true)
+            //             )
+            //             ->with('document')
+            //             ->whereVectorSimilarTo(
+            //                 'embedding',
+            //                 $embedding,
+            //                 minSimilarity: 0.40
+            //             )
+            //             ->limit(8)
+            //             ->get();
+            //     }
+            // ),
         ];
     }
 }
