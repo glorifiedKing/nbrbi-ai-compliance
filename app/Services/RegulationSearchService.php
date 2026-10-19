@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\Models\RegulatoryChunk;
 use Illuminate\Support\Collection;
+use Laravel\Ai\Embeddings;
+use Laravel\Ai\Enums\Lab;
 
 class RegulationSearchService
 {
@@ -37,6 +39,10 @@ class RegulationSearchService
         string $question,
         int $limit = 8
     ): Collection {
+        $response = Embeddings::for([$question])
+            ->generate(Lab::Gemini, 'gemini-embedding-001');
+
+        $queryEmbedding = $response->embeddings[0];
         return RegulatoryChunk::query()
             ->whereNotNull('embedding')
             ->whereHas(
@@ -47,7 +53,7 @@ class RegulationSearchService
             ->with('document')
             ->whereVectorSimilarTo(
                 'embedding',
-                $question,
+                $queryEmbedding,
                 minSimilarity: 0.40
             )
             ->limit(min(max($limit, 1), 20))

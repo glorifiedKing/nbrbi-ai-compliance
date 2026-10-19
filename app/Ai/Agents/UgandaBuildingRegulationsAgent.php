@@ -7,6 +7,8 @@ use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Tools\SimilaritySearch;
+use Laravel\Ai\Embeddings;
+use Laravel\Ai\Enums\Lab;
 use Stringable;
 
 class UgandaBuildingRegulationsAgent implements Agent, HasTools
@@ -47,20 +49,33 @@ PROMPT;
     public function tools(): iterable
     {
         return [
-            SimilaritySearch::usingModel(
-                model: RegulatoryChunk::class,
-                column: 'embedding',
-                limit: 8,
-                query: fn($query) => $query
-                    ->whereHas('document', function ($documents) {
-                        $documents->where('is_active', true);
-                    })
-                    ->with('document')
-            )->withDescription(
-                    'Search active Ugandan regulatory documents for clauses ' .
-                    'relevant to a construction-law question. Returns clause ' .
-                    'numbers, titles, text, metadata and source documents.'
-                ),
+            new SimilaritySearch(
+                using: function (string $query) {
+                    $response = Embeddings::for([$query])
+                        ->generate(
+                            Lab::Gemini,
+                            'gemini-embedding-001'
+                        );
+
+                    $embedding = $response->embeddings[0];
+
+                    return RegulatoryChunk::query()
+                        ->whereNotNull('embedding')
+                        ->whereHas(
+                            'document',
+                            fn($documents) =>
+                                $documents->where('is_active', true)
+                        )
+                        ->with('document')
+                        ->whereVectorSimilarTo(
+                            'embedding',
+                            $embedding,
+                            minSimilarity: 0.40
+                        )
+                        ->limit(8)
+                        ->get();
+                }
+            ),
         ];
     }
 }
