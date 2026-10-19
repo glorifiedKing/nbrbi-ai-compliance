@@ -33,13 +33,13 @@ class CopilotController extends Controller
         $persona = $validated['persona'] ?? 'inspector_okello';
 
         if ($chunks->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'response' => 'I could not find relevant provisions in the active indexed documents.',
-                    'referenced_clauses' => [],
-                ]
-            ]);
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => [
+            //         'response' => 'I could not find relevant provisions in the active indexed documents.',
+            //         'referenced_clauses' => [],
+            //     ]
+            // ]);
         }
 
         // The agent can use its search tool to investigate the question.
