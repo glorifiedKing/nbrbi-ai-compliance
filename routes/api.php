@@ -65,6 +65,6 @@ Route::prefix('v1')->group(function () use ($authMiddleware): void {
         Route::get('/projects/{project}/report', [ReportController::class, 'projectReport'])->name('api.v1.projects.report');
 
         // Floating AI Copilot
-        Route::post('/copilot/ask', [CopilotController::class, 'ask'])->name('api.v1.copilot.ask');
+        Route::post('/copilot/ask', CopilotController::class)->name('api.v1.copilot.ask');
     });
 });
