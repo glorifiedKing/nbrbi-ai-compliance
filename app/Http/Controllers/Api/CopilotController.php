@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\RegulationSearchService;
 use App\Ai\Agents\UgandaBuildingRegulationsAgent;
+use Laravel\Ai\Enums\Lab;
 
 class CopilotController extends Controller
 {
@@ -51,7 +52,10 @@ class CopilotController extends Controller
             json_encode(
                 $sources,
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            )
+            ),
+            provider: [
+                Lab::Gemini->value => 'gemini-3.1-flash-lite',
+            ],
         );
 
         return response()->json([
