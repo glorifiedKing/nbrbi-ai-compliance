@@ -59,6 +59,8 @@ class CopilotController extends Controller
             ],
         );
 
+        Log::info('Copilot response: ' . json_encode($response));
+
         return response()->json([
             'status' => 'success',
             'data' => [
