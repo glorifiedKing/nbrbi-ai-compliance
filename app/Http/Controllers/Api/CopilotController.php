@@ -54,7 +54,8 @@ class CopilotController extends Controller
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
             ),
             provider: [
-                Lab::Gemini->value => 'gemini-3.1-flash-lite',
+                    //Lab::Gemini->value => 'gemini-3.1-flash-lite',
+                Lab::Gemini->value => 'gemini-2.5-flash',
             ],
         );
 
