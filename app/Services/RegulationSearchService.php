@@ -43,37 +43,38 @@ class RegulationSearchService
             ->generate(Lab::Gemini, 'gemini-embedding-001');
 
         $queryEmbedding = $response->embeddings[0];
-        $search = $question;
-        // return RegulatoryChunk::query()
-        //     ->whereNotNull('embedding')
-        //     ->whereHas(
-        //         'document',
-        //         fn($query) =>
-        //             $query->where('is_active', true)
-        //     )
-        //     ->with('document')
-        //     ->whereVectorSimilarTo(
-        //         'embedding',
-        //         $queryEmbedding,
-        //         minSimilarity: 0.40
-        //     )
-        //     ->limit(min(max($limit, 1), 20))
-        //     ->get();
+        
         return RegulatoryChunk::query()
+            ->whereNotNull('embedding')
             ->whereHas(
                 'document',
                 fn($query) =>
                     $query->where('is_active', true)
             )
             ->with('document')
-            ->where(function ($q) use ($search): void {
-                $term = '%' . $search . '%';
-
-                $q->where('clause_number', 'ILIKE', $term)
-                    ->orWhere('clause_title', 'ILIKE', $term)
-                    ->orWhere('content', 'ILIKE', $term);
-            })
+            ->whereVectorSimilarTo(
+                'embedding',
+                $queryEmbedding,
+                minSimilarity: 0.40
+            )
             ->limit(min(max($limit, 1), 20))
             ->get();
+        //    $search = $question;
+        // return RegulatoryChunk::query()
+        //     ->whereHas(
+        //         'document',
+        //         fn($query) =>
+        //             $query->where('is_active', true)
+        //     )
+        //     ->with('document')
+        //     ->where(function ($q) use ($search): void {
+        //         $term = '%' . $search . '%';
+
+        //         $q->where('clause_number', 'ILIKE', $term)
+        //             ->orWhere('clause_title', 'ILIKE', $term)
+        //             ->orWhere('content', 'ILIKE', $term);
+        //     })
+        //     ->limit(min(max($limit, 1), 20))
+        //     ->get();
     }
 }
