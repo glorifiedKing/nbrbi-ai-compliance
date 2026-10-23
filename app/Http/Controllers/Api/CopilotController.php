@@ -18,7 +18,7 @@ class CopilotController extends Controller
 
     public function __invoke(
         Request $request,
-        RegulationSearchService $search
+        //    RegulationSearchService $search
     ): JsonResponse {
         $validated = $request->validate([
             'query' => ['required', 'string', 'max:2000'],
