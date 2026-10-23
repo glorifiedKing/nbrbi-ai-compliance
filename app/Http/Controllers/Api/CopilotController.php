@@ -28,31 +28,32 @@ class CopilotController extends Controller
         $question = trim($validated['query']);
 
         // Retrieve source records independently for verifiable citations.
-        $chunks = $search->semanticSearch($question);
+        //$chunks = $search->semanticSearch($question);
 
-        $sources = $search->formatSources($chunks);
+        //$sources = $search->formatSources($chunks);
         $persona = $validated['persona'] ?? 'inspector_okello';
 
-        if ($chunks->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'response' => 'I could not find relevant provisions in the active indexed documents.',
-                    'referenced_clauses' => [],
-                ]
-            ]);
-        }
+        // if ($chunks->isEmpty()) {
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'data' => [
+        //             'response' => 'I could not find relevant provisions in the active indexed documents.',
+        //             'referenced_clauses' => [],
+        //         ]
+        //     ]);
+        // }
 
         // The agent can use its search tool to investigate the question.
         $response = (new UgandaBuildingRegulationsAgent())->prompt(
-            "Answer the following question using the active indexed " .
-            "Ugandan regulatory documents. Preserve exact clause citations.\n\n" .
-            "Question: {$question}\n\n" .
-            "Initial retrieved source records:\n" .
-            json_encode(
-                $sources,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            ),
+            $question,
+            // "Answer the following question using the active indexed " .
+            // "Ugandan regulatory documents. Preserve exact clause citations.\n\n" .
+            // "Question: {$question}\n\n" .
+            // "Initial retrieved source records:\n" .
+            // json_encode(
+            //     $sources,
+            //     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            // ),
             provider: [
                     //Lab::Gemini->value => 'gemini-3.1-flash-lite',
                 Lab::Gemini->value => 'gemini-3-flash-preview',
@@ -67,7 +68,7 @@ class CopilotController extends Controller
                 'persona' => $persona,
                 'query' => $question,
                 'response' => $response->text,
-                'referenced_clauses' => $sources,
+                //'referenced_clauses' => $sources,
             ]
         ]);
     }
