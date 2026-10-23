@@ -43,7 +43,7 @@ class RegulationSearchService
             ->generate(Lab::Gemini, 'gemini-embedding-001');
 
         $queryEmbedding = $response->embeddings[0];
-        
+
         return RegulatoryChunk::query()
             ->whereNotNull('embedding')
             ->whereHas(

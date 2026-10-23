@@ -30,7 +30,7 @@ class RegulationDatabaseSearch implements Tool
 
     public function handle(Request $request): Stringable|string
     {
-        $search = $request['query'] ?? request()->input('query', 'hallo');
+        $search = trim($request->string('search', $request->string('query', '')));
 
         if ($search === '') {
             return 'Provide a clause number, title, or search keyword.';

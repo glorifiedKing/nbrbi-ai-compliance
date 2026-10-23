@@ -28,22 +28,23 @@ class AppServiceProvider extends ServiceProvider
         Auth::viaRequest('remote-sanctum', function (Request $request) {
             $token = $request->bearerToken();
 
-            if (! $token) {
+            if (!$token) {
                 return null; // No token provided, request is unauthenticated
             }
 
             try {
                 // Forward the token to the Primary App's validation endpoint
                 $response = Http::withToken($token)
-                    ->timeout(3) // Keep timeout low for performance
+                    //->withoutVerifying()
+                    ->timeout(10) // Keep timeout low for performance
                     ->get(config('services.bims.auth_url'));
 
                 if ($response->successful()) {
                     // Extract user record (handles {"data": [{"name": "...", "email": "..."}]})
                     $userData = $response->json('data.0') ?? $response->json('data');
 
-                    if (! $userData || empty($userData['email'])) {
-                        Log::error('Remote Sanctum user payload missing email: '.$response->body());
+                    if (!$userData || empty($userData['email'])) {
+                        Log::error('Remote Sanctum user payload missing email: ' . $response->body());
 
                         return null;
                     }
@@ -68,13 +69,13 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 if ($response->failed()) {
-                    Log::error('Remote Sanctum authentication failed: '.$response->body());
+                    Log::error('Remote Sanctum authentication failed: ' . $response->body());
 
                     return null;
                 }
             } catch (\Exception $e) {
                 // Log error or handle primary app downtime
-                Log::error('Remote Sanctum authentication failed: '.$e->getMessage());
+                Log::error('Remote Sanctum authentication failed: ' . $e->getMessage());
 
                 return null;
             }
