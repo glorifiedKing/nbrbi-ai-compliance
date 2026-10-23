@@ -54,6 +54,7 @@ PROMPT;
             new SimilaritySearch(
                 using: function (string $query) {
                     $response = Embeddings::for([$query])
+                        ->dimensions(768)
                         ->generate(
                             Lab::Gemini,
                             'gemini-embedding-001'
