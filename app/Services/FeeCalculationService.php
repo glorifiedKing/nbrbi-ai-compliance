@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BuildingClass;
 use App\Models\Project;
 
 class FeeCalculationService
@@ -11,21 +12,38 @@ class FeeCalculationService
      */
     public const DEFAULT_MINIMUM_FEE_UGX = 250000.00;
 
+    /**
+     * Official Uganda statutory rates for Class A, Class B, and Class C under the Uganda Building Control Act.
+     */
     public const RATES_PER_SQM = [
-        'Class A (Residential)' => 2500.00,
+        // Uganda Building Control Act Official Classes
+        'Class A (Complex & Public Buildings)' => 4000.00,
+        'Class A: Complex and Public Buildings' => 4000.00,
+        'Class A' => 4000.00,
+
+        'Class B (Residential & Commercial)' => 2500.00,
+        'Class B: Standard Residential and Commercial Buildings' => 2500.00,
+        'Class B' => 2500.00,
+
+        'Class C (Minor & Temporary Buildings)' => 1500.00,
+        'Class C: Minor and Temporary Buildings' => 1500.00,
+        'Class C' => 1500.00,
+
+        // Legacy compatibility entries
         'Class B (Commercial & Offices)' => 4000.00,
         'Class B (Commercial)' => 4000.00,
-        'Class C (Industrial)' => 5000.00,
-        'Class C (Industrial & Storage)' => 5000.00,
-        'Class D (Hazardous)' => 6500.00,
-        'Class E (Institutional)' => 3000.00,
-        'Class E (Institutional / Assembly)' => 3000.00,
+        'Class A (Residential)' => 2500.00,
+        'Class C (Industrial)' => 4000.00,
+        'Class C (Industrial & Storage)' => 4000.00,
+        'Class D (Hazardous)' => 5000.00,
+        'Class E (Institutional)' => 4000.00,
+        'Class E (Institutional / Assembly)' => 4000.00,
     ];
 
-    public const DEFAULT_RATE_PER_SQM = 3500.00;
+    public const DEFAULT_RATE_PER_SQM = 2500.00;
 
     /**
-     * Resolves statutory fee rate per m² based on the building occupancy class.
+     * Resolves statutory fee rate per m² based on the building class.
      */
     public static function getRatePerSqm(?string $occupancyClass): float
     {
@@ -33,31 +51,24 @@ class FeeCalculationService
             return self::DEFAULT_RATE_PER_SQM;
         }
 
+        // 1. Direct match in lookup table
         foreach (self::RATES_PER_SQM as $classKey => $rate) {
-            if (stripos($occupancyClass, $classKey) !== false || stripos($classKey, $occupancyClass) !== false) {
+            if (strcasecmp($occupancyClass, $classKey) === 0) {
                 return $rate;
             }
         }
 
-        // Generic classification keyword matching
-        if (stripos($occupancyClass, 'residential') !== false) {
-            return 2500.00;
+        // 2. Resolve via official Uganda BuildingClass enum
+        $enumClass = BuildingClass::tryNormalize($occupancyClass);
+        if ($enumClass) {
+            return $enumClass->ratePerSqm();
         }
 
-        if (stripos($occupancyClass, 'commercial') !== false || stripos($occupancyClass, 'office') !== false) {
-            return 4000.00;
-        }
-
-        if (stripos($occupancyClass, 'industrial') !== false || stripos($occupancyClass, 'warehouse') !== false) {
-            return 5000.00;
-        }
-
-        if (stripos($occupancyClass, 'hazardous') !== false) {
-            return 6500.00;
-        }
-
-        if (stripos($occupancyClass, 'institutional') !== false || stripos($occupancyClass, 'school') !== false || stripos($occupancyClass, 'hospital') !== false) {
-            return 3000.00;
+        // 3. Fallback partial match in lookup table
+        foreach (self::RATES_PER_SQM as $classKey => $rate) {
+            if (stripos($occupancyClass, $classKey) !== false || stripos($classKey, $occupancyClass) !== false) {
+                return $rate;
+            }
         }
 
         return self::DEFAULT_RATE_PER_SQM;

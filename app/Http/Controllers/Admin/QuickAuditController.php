@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BuildingClass;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessQuickAuditJob;
 use App\Models\QuickAudit;
@@ -64,7 +65,7 @@ class QuickAuditController extends Controller
             'file_size_bytes' => $fileSize,
             'file_hash' => $fileHash,
             'discipline' => strtolower($validated['discipline']),
-            'occupancy_class' => $validated['occupancy_class'] ?? 'Class A (Residential)',
+            'occupancy_class' => $validated['occupancy_class'] ?? BuildingClass::CLASS_B->value,
             'status' => 'pending',
         ]);
 

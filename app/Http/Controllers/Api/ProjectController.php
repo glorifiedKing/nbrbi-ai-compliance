@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BuildingClass;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectUser;
@@ -53,7 +54,7 @@ class ProjectController extends Controller
             'owner_id' => $request->user()->id,
             'name' => $validated['name'],
             'reference_number' => $referenceNumber,
-            'occupancy_class' => $validated['occupancy_class'] ?? 'Class A (Residential)',
+            'occupancy_class' => $validated['occupancy_class'] ?? BuildingClass::CLASS_B->value,
             'share_token' => $shareToken,
             'is_public' => $validated['is_public'] ?? false,
             'status' => 'draft',

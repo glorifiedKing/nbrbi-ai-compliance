@@ -132,6 +132,7 @@ class InternalWebhookController extends Controller
                 'estimated_statutory_fee_ugx' => $quickFee,
                 'preflight_metrics' => $validated['preflight_metrics'] ?? [],
                 'extracted_geometry' => $validated['extracted_geometry'] ?? [],
+                'floor_area_metrics' => $validated['floor_area_metrics'] ?? null,
                 'discrepancies' => $validated['discrepancies'] ?? [],
                 'summary_metrics' => $validated['summary_metrics'] ?? [
                     'pass_count' => $overallStatus === 'PASS' ? 1 : 0,

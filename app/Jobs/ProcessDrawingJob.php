@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\BuildingClass;
 use App\Models\DrawingVersion;
 use App\Services\FastApiService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,7 +39,7 @@ class ProcessDrawingJob implements ShouldQueue
         $project = $drawing?->floor?->block?->project;
 
         $discipline = $drawing->discipline ?? 'architectural';
-        $occupancyClass = $project->occupancy_class ?? 'Class A (Residential)';
+        $occupancyClass = $project->occupancy_class ?? BuildingClass::CLASS_B->value;
 
         $this->drawingVersion->update([
             'status' => 'analyzing',

@@ -95,14 +95,14 @@ class ComplianceApiTest extends TestCase
 
         $response = $this->postJson(route('api.v1.quick-audit.store'), [
             'discipline' => 'structural',
-            'occupancy_class' => 'Class B (Commercial & Offices)',
+            'occupancy_class' => 'Class B (Residential & Commercial)',
             'drawing_file' => $dummyPdf,
         ]);
 
         $response->assertStatus(202)
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data.discipline', 'structural')
-            ->assertJsonPath('data.occupancy_class', 'Class B (Commercial & Offices)');
+            ->assertJsonPath('data.occupancy_class', 'Class B (Residential & Commercial)');
 
         Queue::assertPushed(ProcessQuickAuditJob::class);
 
@@ -118,7 +118,7 @@ class ComplianceApiTest extends TestCase
             'file_name' => 'quick_audits/sample.pdf',
             'original_name' => 'sample_arch.pdf',
             'discipline' => 'architectural',
-            'occupancy_class' => 'Class A (Residential)',
+            'occupancy_class' => 'Class B (Residential & Commercial)',
             'status' => 'analyzing',
         ]);
 
@@ -217,7 +217,7 @@ class ComplianceApiTest extends TestCase
             'owner_id' => $user->id,
             'name' => 'Kampala Apex Commercial Plaza',
             'reference_number' => 'NBRB-KLA-'.uniqid(),
-            'occupancy_class' => 'Class B (Commercial & Offices)',
+            'occupancy_class' => 'Class A (Complex & Public Buildings)',
             'share_token' => uniqid('token_'),
         ]);
 
@@ -264,7 +264,7 @@ class ComplianceApiTest extends TestCase
             ->assertJsonPath('status', 'success');
 
         // Total floor area should be 550 (ground) + 450 (first) = 1,000 m²
-        // Class B rate is 4,000 UGX/m², fee = 1,000 * 4,000 = 4,000,000 UGX
+        // Class A rate is 4,000 UGX/m², fee = 1,000 * 4,000 = 4,000,000 UGX
         $this->assertDatabaseHas('floors', [
             'id' => $groundFloor->id,
             'gross_floor_area_sqm' => 550.00,
@@ -296,7 +296,7 @@ class ComplianceApiTest extends TestCase
             'file_name' => 'quick_audits/arch_commercial.pdf',
             'original_name' => 'arch_commercial.pdf',
             'discipline' => 'architectural',
-            'occupancy_class' => 'Class A (Residential)',
+            'occupancy_class' => 'Class B (Residential & Commercial)',
             'status' => 'analyzing',
         ]);
 

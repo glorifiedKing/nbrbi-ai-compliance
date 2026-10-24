@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BuildingClass;
 use App\Models\DrawingVersion;
 use App\Models\QuickAudit;
 use App\Models\RegulatoryDocument;
@@ -34,7 +35,7 @@ class FastApiService
 
             return $response->successful();
         } catch (\Throwable $e) {
-            Log::warning('FastAPI health check failed: ' . $e->getMessage());
+            Log::warning('FastAPI health check failed: '.$e->getMessage());
 
             return false;
         }
@@ -47,7 +48,7 @@ class FastApiService
      */
     public function ingestRegulatoryDocument(RegulatoryDocument $document, string $absoluteFilePath): array
     {
-        if (!file_exists($absoluteFilePath)) {
+        if (! file_exists($absoluteFilePath)) {
             throw new RuntimeException("Regulatory PDF file not found at path: {$absoluteFilePath}");
         }
 
@@ -68,7 +69,7 @@ class FastApiService
                 'document_id' => $document->id,
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $errorMessage = $response->json('detail') ?? $response->body() ?? 'FastAPI ingestion error';
             Log::error("FastAPI regulatory ingestion failed [{$response->status()}]: {$errorMessage}");
             throw new RuntimeException("FastAPI ingestion failed: {$errorMessage}");
@@ -86,7 +87,7 @@ class FastApiService
         DrawingVersion|QuickAudit|string $versionOrAudit,
         string $absoluteFilePath,
         string $discipline,
-        ?string $occupancyClass = 'Class A (Residential)',
+        ?string $occupancyClass = null,
         ?string $drawingId = null
     ): array {
         $versionId = is_string($versionOrAudit) ? $versionOrAudit : $versionOrAudit->id;
@@ -104,7 +105,7 @@ class FastApiService
             'drawing_id' => $drawingId,
             'discipline' => strtolower($discipline),
             'file_path' => $absoluteFilePath,
-            'occupancy_class' => $occupancyClass ?? 'Class A (Residential)',
+            'occupancy_class' => $occupancyClass ?? BuildingClass::CLASS_B->value,
         ];
 
         $response = Http::timeout(120)
@@ -115,7 +116,7 @@ class FastApiService
             ])
             ->post($url, $payload);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $errorMessage = $response->json('detail') ?? $response->body() ?? 'FastAPI drawing analysis trigger failed';
             Log::error("FastAPI drawing analysis request failed [{$response->status()}]: {$errorMessage}");
             throw new RuntimeException("FastAPI analysis trigger failed: {$errorMessage}");

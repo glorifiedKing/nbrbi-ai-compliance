@@ -35,16 +35,22 @@
                 </div>
 
                 <!-- Building Occupancy Class -->
+                <!-- Building Class -->
                 <div>
                     <label for="occupancy_class" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                        Building Occupancy Class
+                        Building Class (Uganda Building Control Act)
                     </label>
                     <select id="occupancy_class" name="occupancy_class"
                             class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-[#046938] focus:ring-1 focus:ring-[#046938] shadow-sm">
-                        <option value="Class A (Residential)">Class A (Residential Dwellings & Apartments)</option>
-                        <option value="Class B (Commercial & Offices)">Class B (Commercial, Retail, Offices & Banks)</option>
-                        <option value="Class C (Institutional & Public)">Class C (Schools, Hospitals, Public Assemblies)</option>
-                        <option value="Class D (Industrial & Storage)">Class D (Factories, Warehouses, Workshops)</option>
+                        <option value="Class A (Complex & Public Buildings)">
+                            Class A: Complex & Public Buildings (Towers >12m, Malls, Hospitals, Schools, Hotels, Arcades)
+                        </option>
+                        <option value="Class B (Residential & Commercial)" selected>
+                            Class B: Standard Residential & Commercial (Bungalows, Shop Houses up to 12m, Area >30m²)
+                        </option>
+                        <option value="Class C (Minor & Temporary Buildings)">
+                            Class C: Minor & Temporary Buildings (Simple form, single story, Area <30m², Kiosks, Utility)
+                        </option>
                     </select>
                 </div>
             </div>
