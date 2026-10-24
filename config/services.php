@@ -37,6 +37,7 @@ return [
 
     'bims' => [
         'auth_url' => env('BIMS_AUTH_URL', 'https://api.test.bims.go.ug/v1/pro/account'),
+        'cache_ttl' => (int) env('BIMS_AUTH_CACHE_TTL', 900),
     ],
 
     'fastapi' => [
