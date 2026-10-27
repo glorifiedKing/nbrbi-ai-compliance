@@ -584,8 +584,12 @@
             const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
             const csrfToken = csrfTokenMeta ? csrfTokenMeta.content : '';
 
-            // Preferred endpoints: try /admin/copilot/ask then fallback to /copilot/ask
+            // Preferred endpoints: auth users use admin.copilot, guest/auth pages use public copilot route
+            @auth
             const endpoints = ['{{ route("admin.copilot") }}', '{{ route("copilot") }}', '/admin/copilot/ask', '/copilot/ask'];
+            @else
+            const endpoints = ['{{ route("copilot") }}', '/copilot/ask', '{{ route("admin.copilot") }}'];
+            @endauth
             let resolvedData = null;
             let lastError = null;
 

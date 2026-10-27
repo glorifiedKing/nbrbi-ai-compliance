@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Portal Login - NBRB BIMS Uganda</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,5 +102,8 @@
             National Building Review Board • Uganda Building Control Act
         </div>
     </div>
+
+    {{-- Floating AI Copilot for Administrative Portal --}}
+    @include('admin.partials.copilot-chatbot')
 </body>
 </html>

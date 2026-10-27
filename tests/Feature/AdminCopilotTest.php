@@ -147,4 +147,31 @@ class AdminCopilotTest extends TestCase
 
         $response->assertRedirect(route('admin.login'));
     }
+
+    public function test_login_page_renders_floating_chatbot(): void
+    {
+        $response = $this->get(route('admin.login'));
+
+        $response->assertStatus(200);
+        $response->assertSee('id="nbrb-copilot-root"', false);
+        $response->assertSee('id="nbrb-copilot-toggle"', false);
+        $response->assertSee('id="nbrb-copilot-window"', false);
+        $response->assertSee('NBRB Statutory Copilot');
+        $response->assertSee('data-persona="inspector_okello"', false);
+        $response->assertSee('data-persona="architect_namubiru"', false);
+        $response->assertSee('data-persona="engineer_kigozi"', false);
+        $response->assertSee('id="copilot-input"', false);
+    }
+
+    public function test_public_copilot_endpoint_is_accessible_to_guests(): void
+    {
+        $response = $this->postJson(route('copilot'), [
+            'query' => 'What is the minimum window area for ventilation in a habitable room?',
+            'persona' => 'architect_namubiru',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.persona', 'architect_namubiru');
+    }
 }
