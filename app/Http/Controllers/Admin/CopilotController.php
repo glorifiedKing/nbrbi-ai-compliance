@@ -52,7 +52,7 @@ class CopilotController extends Controller
             $response = $agent->prompt(
                 $question,
                 provider: [
-                    Lab::Gemini->value => config('ai.providers.gemini.models.0', 'gemini-2.5-flash'),
+                    Lab::Gemini->value => 'gemini-3-flash-preview'
                 ],
             );
 
