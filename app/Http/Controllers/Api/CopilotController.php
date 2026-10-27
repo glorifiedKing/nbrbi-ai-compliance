@@ -44,7 +44,7 @@ class CopilotController extends Controller
         // }
 
         // The agent can use its search tool to investigate the question.
-        $response = (new UgandaBuildingRegulationsAgent())->prompt(
+        $response = (new UgandaBuildingRegulationsAgent(persona: $persona))->prompt(
             $question,
             // "Answer the following question using the active indexed " .
             // "Ugandan regulatory documents. Preserve exact clause citations.\n\n" .

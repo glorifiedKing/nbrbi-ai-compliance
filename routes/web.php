@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\CopilotController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuickAuditController;
 use App\Http\Controllers\Admin\RegulatoryDocumentController;
@@ -17,11 +18,16 @@ Route::prefix('admin')->group(function (): void {
 });
 Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
 
+Route::post('/copilot/ask', CopilotController::class)->name('copilot');
+
 // Protected Administrative Portal
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Administrative Floating Copilot
+    Route::post('/copilot/ask', CopilotController::class)->name('copilot');
 
     // Standalone Quick Drawing Compliance Audit
     Route::get('/quick-audit', [QuickAuditController::class, 'index'])->name('quick-audit.index');
