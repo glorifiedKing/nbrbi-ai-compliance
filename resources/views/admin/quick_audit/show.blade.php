@@ -17,9 +17,12 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
-                        {{ $quickAudit->original_name ?? 'Single Drawing Audit' }}</h1>
+                        {{ $quickAudit->original_name ?? 'Single Drawing Audit' }}
+                    </h1>
                     <p class="text-sm text-slate-600 mt-1">
-                        {{ ucfirst($quickAudit->discipline) }} Plan • {{ \App\Enums\BuildingClass::tryNormalize($quickAudit->occupancy_class)?->value ?? $quickAudit->occupancy_class }} • Submitted
+                        {{ ucfirst($quickAudit->discipline) }} Plan •
+                        {{ \App\Enums\BuildingClass::tryNormalize($quickAudit->occupancy_class)?->value ?? $quickAudit->occupancy_class }}
+                        • Submitted
                         {{ $quickAudit->created_at->format('M d, Y H:i') }}
                     </p>
                 </div>
@@ -145,7 +148,7 @@
             }
         @endphp
 
-        @if($totalGfa > 0)
+        @if($totalGfa > 0 && $quickAudit->discipline == 'architectural')
             <!-- Floor Area & Fee Card -->
             <div
                 class="p-6 rounded-2xl glass-panel border border-[#046938]/20 bg-gradient-to-r from-emerald-50/60 via-white to-amber-50/40">
@@ -160,8 +163,8 @@
                         </span>
                         <div class="flex items-baseline gap-2 flex-wrap">
                             <h3 class="text-xl font-extrabold text-slate-900">
-                                {{ number_format($totalGfa, 2) }} <span
-                                    class="text-[#046938] text-sm font-bold">m² (Gross Floor Area)</span>
+                                {{ number_format($totalGfa, 2) }} <span class="text-[#046938] text-sm font-bold">m² (Gross Floor
+                                    Area)</span>
                             </h3>
                             @if(count($floorsList) > 1)
                                 <span class="px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-800 text-[11px] font-bold">
@@ -170,7 +173,8 @@
                             @endif
                         </div>
                         <p class="text-xs text-slate-600">
-                            Classified as <span class="text-slate-900 font-semibold" title="{{ $buildingClassEnum?->scope() }}">{{ $displayClassLabel }}</span> •
+                            Classified as <span class="text-slate-900 font-semibold"
+                                title="{{ $buildingClassEnum?->scope() }}">{{ $displayClassLabel }}</span> •
                             Statutory rate: <span class="font-mono font-semibold text-[#046938]">UGX
                                 {{ number_format($statutoryRate, 0) }}
                                 / m²</span>
@@ -179,7 +183,8 @@
 
                     <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
                         <div class="px-5 py-3 rounded-xl bg-white border border-[#046938]/20 shadow-xs text-right">
-                            <span class="text-[11px] uppercase tracking-wider text-[#046938] font-bold block">Estimated Statutory
+                            <span class="text-[11px] uppercase tracking-wider text-[#046938] font-bold block">Estimated
+                                Statutory
                                 Plan Review Fee</span>
                             <div class="text-2xl font-black text-slate-900 mt-0.5">
                                 <span class="text-[#DEA74F] text-base font-extrabold">UGX</span>
@@ -187,12 +192,12 @@
                             </div>
                         </div>
 
-                        <button type="button"
-                            id="openFloorAreaModalBtn"
-                            onclick="openFloorAreaModal()"
+                        <button type="button" id="openFloorAreaModalBtn" onclick="openFloorAreaModal()"
                             class="px-4 py-3 rounded-xl bg-[#046938] hover:bg-[#03522c] active:bg-[#023c20] text-white text-xs font-bold shadow-sm hover:shadow transition-all flex items-center gap-2 group cursor-pointer">
-                            <svg class="w-4 h-4 text-[#DEA74F] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            <svg class="w-4 h-4 text-[#DEA74F] group-hover:scale-110 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             <span>View Floor Breakdown</span>
                             <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-mono font-semibold">
@@ -271,6 +276,14 @@
                     <tbody class="divide-y divide-slate-100">
                         @forelse($quickAudit->discrepancies ?? [] as $item)
                             <tr class="hover:bg-slate-50/80 transition-colors">
+                                @php
+                                    $sev = $item['severity'] ?? 'INFO';
+                                    $sevTextColor = match ($sev) {
+                                        'ERROR' => 'text-rose-700',
+                                        'WARNING' => 'text-amber-700',
+                                        default => 'text-blue-700'
+                                    }
+                                @endphp
                                 <td class="px-4 py-3.5 font-bold text-slate-900">
                                     {{ $item['element_id'] ?? 'Element' }}
                                     <div class="text-[11px] text-slate-500 font-normal">{{ $item['room_or_grid'] ?? '' }}</div>
@@ -281,11 +294,11 @@
                                 <td class="px-4 py-3.5 text-xs text-slate-700">
                                     {{ $item['required_value'] ?? 'N/A' }}
                                 </td>
-                                <td class="px-4 py-3.5 text-xs text-rose-600 font-bold font-mono">
+                                <td class="px-4 py-3.5 text-xs {{ $sevTextColor }}  font-bold font-mono">
                                     {{ $item['observed_value'] ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3.5">
-                                    @php $sev = $item['severity'] ?? 'INFO'; @endphp
+
                                     @if($sev === 'ERROR')
                                         <span
                                             class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">ERROR</span>
@@ -319,18 +332,25 @@
 
         @if(!empty($floorsList))
             <!-- Floor Area Metrics Detail Popup Modal -->
-            <div id="floorAreaModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-floor-area-title" role="dialog" aria-modal="true">
+            <div id="floorAreaModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-floor-area-title"
+                role="dialog" aria-modal="true">
                 <!-- Backdrop overlay with blur -->
-                <div id="floorAreaBackdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200 opacity-0" onclick="closeFloorAreaModal()"></div>
+                <div id="floorAreaBackdrop"
+                    class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200 opacity-0"
+                    onclick="closeFloorAreaModal()"></div>
 
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
-                    <div id="floorAreaModalPanel" class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all duration-200 opacity-0 scale-95 w-full max-w-3xl border border-slate-200">
+                    <div id="floorAreaModalPanel"
+                        class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all duration-200 opacity-0 scale-95 w-full max-w-3xl border border-slate-200">
                         <!-- Modal Header -->
-                        <div class="px-6 py-5 bg-gradient-to-r from-slate-900 via-[#03522c] to-[#046938] text-white flex items-center justify-between">
+                        <div
+                            class="px-6 py-5 bg-gradient-to-r from-slate-900 via-[#03522c] to-[#046938] text-white flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-[#DEA74F] border border-white/10 shrink-0">
+                                <div
+                                    class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-[#DEA74F] border border-white/10 shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                     </svg>
                                 </div>
                                 <div>
@@ -342,13 +362,12 @@
                                     </p>
                                 </div>
                             </div>
-                            <button type="button"
-                                id="closeFloorAreaModalXBtn"
-                                onclick="closeFloorAreaModal()"
+                            <button type="button" id="closeFloorAreaModalXBtn" onclick="closeFloorAreaModal()"
                                 class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer"
                                 aria-label="Close modal">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
@@ -358,37 +377,46 @@
                             <!-- Overall Metrics Summary Cards -->
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-xs">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Total Gross Area (GFA)</span>
+                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Total
+                                        Gross Area (GFA)</span>
                                     <div class="text-lg font-black text-slate-900 mt-1">
-                                        {{ number_format($totalGfa, 2) }} <span class="text-xs text-[#046938] font-bold">m²</span>
+                                        {{ number_format($totalGfa, 2) }} <span
+                                            class="text-xs text-[#046938] font-bold">m²</span>
                                     </div>
                                 </div>
                                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-xs">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Total Net Internal (NIA)</span>
+                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Total Net
+                                        Internal (NIA)</span>
                                     <div class="text-lg font-black text-slate-900 mt-1">
                                         @if($totalNia)
-                                            {{ number_format($totalNia, 2) }} <span class="text-xs text-[#046938] font-bold">m²</span>
+                                            {{ number_format($totalNia, 2) }} <span
+                                                class="text-xs text-[#046938] font-bold">m²</span>
                                         @else
                                             <span class="text-xs text-slate-400 font-medium">N/A</span>
                                         @endif
                                     </div>
                                 </div>
                                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-xs">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Calculated Floors</span>
+                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Calculated
+                                        Floors</span>
                                     <div class="text-lg font-black text-slate-900 mt-1">
-                                        {{ count($floorsList) }} <span class="text-xs text-slate-500 font-semibold">{{ count($floorsList) === 1 ? 'level' : 'levels' }}</span>
+                                        {{ count($floorsList) }} <span
+                                            class="text-xs text-slate-500 font-semibold">{{ count($floorsList) === 1 ? 'level' : 'levels' }}</span>
                                     </div>
                                 </div>
                                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-xs">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Statutory Review Fee</span>
+                                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Statutory
+                                        Review Fee</span>
                                     <div class="text-lg font-black text-slate-900 font-mono mt-1">
-                                        <span class="text-xs text-[#DEA74F] font-bold">UGX</span> {{ number_format($quickAudit->estimated_statutory_fee_ugx, 0) }}
+                                        <span class="text-xs text-[#DEA74F] font-bold">UGX</span>
+                                        {{ number_format($quickAudit->estimated_statutory_fee_ugx, 0) }}
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Source and Confidence Banner -->
-                            <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs text-emerald-950">
+                            <div
+                                class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs text-emerald-950">
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#046938]"></span>
                                     <span class="font-medium">Calculation Engine / Source:</span>
@@ -397,7 +425,8 @@
                                     </span>
                                 </div>
                                 @if(isset($metrics['confidence_score']))
-                                    <div class="flex items-center gap-1.5 font-semibold text-[#046938] bg-white px-2.5 py-1 rounded-full border border-emerald-200">
+                                    <div
+                                        class="flex items-center gap-1.5 font-semibold text-[#046938] bg-white px-2.5 py-1 rounded-full border border-emerald-200">
                                         <span>Confidence:</span>
                                         <span class="font-mono font-bold">{{ round($metrics['confidence_score'] * 100) }}%</span>
                                     </div>
@@ -411,29 +440,37 @@
                                         Calculated Area Per Floor Level
                                     </h4>
                                     <span class="text-xs text-slate-500 font-medium">
-                                        Uganda Building Class: <strong class="text-slate-800" title="{{ $buildingClassEnum?->scope() }}">{{ $displayClassLabel }}</strong> (UGX {{ number_format($statutoryRate, 0) }}/m²)
+                                        Uganda Building Class: <strong class="text-slate-800"
+                                            title="{{ $buildingClassEnum?->scope() }}">{{ $displayClassLabel }}</strong> (UGX
+                                        {{ number_format($statutoryRate, 0) }}/m²)
                                     </span>
                                 </div>
 
                                 <div class="space-y-3">
                                     @foreach($floorsList as $floorItem)
-                                        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 hover:border-[#046938]/40 transition-colors space-y-3">
+                                        <div
+                                            class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 hover:border-[#046938]/40 transition-colors space-y-3">
                                             <!-- Floor Title Row -->
-                                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200/80">
+                                            <div
+                                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200/80">
                                                 <div class="flex items-center gap-3">
-                                                    <span class="w-8 h-8 rounded-xl bg-[#046938] text-white font-black text-xs flex items-center justify-center font-mono shadow-xs shrink-0">
+                                                    <span
+                                                        class="w-8 h-8 rounded-xl bg-[#046938] text-white font-black text-xs flex items-center justify-center font-mono shadow-xs shrink-0">
                                                         {{ $floorItem['page'] ?? $loop->iteration }}
                                                     </span>
                                                     <div>
-                                                        <h5 class="text-sm font-extrabold text-slate-900">{{ $floorItem['name'] }}</h5>
+                                                        <h5 class="text-sm font-extrabold text-slate-900">{{ $floorItem['name'] }}
+                                                        </h5>
                                                         @if(!empty($floorItem['page']))
-                                                            <span class="text-[11px] text-slate-500 font-medium">Blueprint Sheet Page {{ $floorItem['page'] }}</span>
+                                                            <span class="text-[11px] text-slate-500 font-medium">Blueprint Sheet Page
+                                                                {{ $floorItem['page'] }}</span>
                                                         @endif
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     @if(!is_null($floorItem['pct']))
-                                                        <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold font-mono">
+                                                        <span
+                                                            class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold font-mono">
                                                             {{ $floorItem['pct'] }}% of Total GFA
                                                         </span>
                                                     @endif
@@ -443,25 +480,34 @@
                                             <!-- Key metrics row for this floor -->
                                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                                 <div class="p-3 rounded-xl bg-white border border-slate-200/70">
-                                                    <span class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Gross Floor Area (GFA)</span>
+                                                    <span
+                                                        class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Gross
+                                                        Floor Area (GFA)</span>
                                                     <span class="font-mono font-bold text-slate-900 text-sm mt-0.5 block">
-                                                        {{ number_format($floorItem['gfa'], 2) }} <span class="text-[#046938]">m²</span>
+                                                        {{ number_format($floorItem['gfa'], 2) }} <span
+                                                            class="text-[#046938]">m²</span>
                                                     </span>
                                                 </div>
                                                 <div class="p-3 rounded-xl bg-white border border-slate-200/70">
-                                                    <span class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Net Internal Area (NIA)</span>
+                                                    <span
+                                                        class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Net
+                                                        Internal Area (NIA)</span>
                                                     <span class="font-mono font-semibold text-slate-800 text-sm mt-0.5 block">
                                                         @if($floorItem['nia'])
-                                                            {{ number_format($floorItem['nia'], 2) }} <span class="text-slate-500">m²</span>
+                                                            {{ number_format($floorItem['nia'], 2) }} <span
+                                                                class="text-slate-500">m²</span>
                                                         @else
                                                             <span class="text-slate-400 font-normal text-xs">—</span>
                                                         @endif
                                                     </span>
                                                 </div>
                                                 <div class="p-3 rounded-xl bg-white border border-slate-200/70">
-                                                    <span class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Floor Statutory Fee</span>
+                                                    <span
+                                                        class="text-slate-500 font-semibold block text-[11px] uppercase tracking-wider">Floor
+                                                        Statutory Fee</span>
                                                     <span class="font-mono font-bold text-slate-900 text-sm mt-0.5 block">
-                                                        <span class="text-[#DEA74F]">UGX</span> {{ number_format($floorItem['fee'], 0) }}
+                                                        <span class="text-[#DEA74F]">UGX</span>
+                                                        {{ number_format($floorItem['fee'], 0) }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -469,13 +515,16 @@
                                             <!-- Room breakdown if available -->
                                             @if(!empty($floorItem['rooms']))
                                                 <div class="pt-2">
-                                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-2">
+                                                    <span
+                                                        class="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-2">
                                                         Detected Rooms & Compartments ({{ count($floorItem['rooms']) }})
                                                     </span>
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                         @foreach($floorItem['rooms'] as $room)
-                                                            <div class="px-3 py-2 rounded-xl bg-white border border-slate-200 flex items-center justify-between text-xs">
-                                                                <span class="text-slate-700 truncate pr-2 font-medium">{{ $room['name'] ?? 'Room' }}</span>
+                                                            <div
+                                                                class="px-3 py-2 rounded-xl bg-white border border-slate-200 flex items-center justify-between text-xs">
+                                                                <span
+                                                                    class="text-slate-700 truncate pr-2 font-medium">{{ $room['name'] ?? 'Room' }}</span>
                                                                 <span class="font-mono font-bold text-[#046938] shrink-0">
                                                                     {{ isset($room['area_sqm']) ? number_format((float) $room['area_sqm'], 2) . ' m²' : (isset($room['area']) ? number_format((float) $room['area'], 2) . ' m²' : '—') }}
                                                                 </span>
@@ -491,16 +540,16 @@
                         </div>
 
                         <!-- Modal Footer -->
-                        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div
+                            class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                             <div class="flex items-center gap-2 text-xs text-slate-500">
                                 <svg class="w-4 h-4 text-[#046938]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                                 <span>Verified by NBRB Automated Statutory Area Measurement</span>
                             </div>
-                            <button type="button"
-                                id="closeFloorAreaModalBtn"
-                                onclick="closeFloorAreaModal()"
+                            <button type="button" id="closeFloorAreaModalBtn" onclick="closeFloorAreaModal()"
                                 class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-800 text-xs font-bold transition-colors cursor-pointer">
                                 Close
                             </button>
@@ -564,4 +613,4 @@
             </script>
         @endif
     </div>
-@endsection
+@endsection
