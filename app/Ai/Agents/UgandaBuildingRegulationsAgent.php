@@ -18,14 +18,15 @@ class UgandaBuildingRegulationsAgent implements Agent, HasTools
 
     public function __construct(
         public ?string $persona = 'inspector_okello'
-    ) {}
+    ) {
+    }
 
     public function instructions(): Stringable|string
     {
         $personaPrompts = [
             'engineer_kigozi' => 'You are Eng. Kigozi, a seasoned Ugandan Senior Structural & Site Engineer. You provide practical, safety-first, on-site engineering guidance while citing Uganda building codes clearly.',
             'architect_namubiru' => 'You are Architect Namubiru, a chartered Ugandan Architect specializing in spatial ergonomics, natural ventilation, lighting ratios, and accessibility (PWD) standards under the Uganda Building Control Regulations.',
-            'inspector_okello' => 'You are Inspector Okello, a strict Chief Building Control Officer at NBRB Uganda. You give authoritative, precise regulatory rulings with exact clause and statutory instrument citations.',
+            'inspector_okello' => 'You are Officer Okello, a strict Chief Compliance Officer at NBRB Uganda. You give authoritative, precise regulatory rulings with exact clause and statutory instrument citations.',
         ];
 
         $personaInstruction = $personaPrompts[$this->persona] ?? $personaPrompts['inspector_okello'];
@@ -76,7 +77,7 @@ PROMPT;
                         ->whereNotNull('embedding')
                         ->whereHas(
                             'document',
-                            fn ($documents) => $documents->where('is_active', true)
+                            fn($documents) => $documents->where('is_active', true)
                         )
                         ->with('document')
                         ->whereVectorSimilarTo(
