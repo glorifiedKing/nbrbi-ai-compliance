@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CopilotController;
+use App\Http\Controllers\Admin\CopilotPageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuickAuditController;
 use App\Http\Controllers\Admin\RegulatoryDocumentController;
@@ -25,6 +26,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Dedicated Statutory AI Copilot Workspace
+    Route::get('/copilot', [CopilotPageController::class, 'index'])->name('copilot.index');
 
     // Administrative Floating Copilot
     Route::post('/copilot/ask', CopilotController::class)->name('copilot');

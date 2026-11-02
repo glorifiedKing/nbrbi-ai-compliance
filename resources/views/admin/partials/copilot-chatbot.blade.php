@@ -1,22 +1,33 @@
 {{-- Administrative Floating Copilot Chatbot --}}
+@php
+    $activeCopilotPersonas = $personas ?? \App\Services\CopilotPersonaService::getEnabled();
+@endphp
 <div id="nbrb-copilot-root" class="relative z-50">
+    {{-- Fullscreen Expanded Backdrop Overlay --}}
+    <div id="copilot-backdrop"
+        class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs z-40 transition-opacity duration-300 opacity-0 pointer-events-none"
+        aria-hidden="true"></div>
+
     {{-- Floating Action Button (FAB) --}}
     <button type="button" id="nbrb-copilot-toggle"
         class="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5 sm:gap-3 px-4 py-3 sm:px-4.5 sm:py-3.5 rounded-full bg-gradient-to-r from-[#03522c] via-[#046938] to-[#088045] text-white shadow-2xl hover:shadow-[#046938]/30 hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-white/20 focus:outline-none focus:ring-4 focus:ring-[#046938]/30 group"
         aria-label="Open NBRB Statutory AI Copilot" title="NBRB Building Code AI Copilot (Ctrl + /)">
-        
+
         {{-- Pulsing aura --}}
-        <span class="absolute -inset-1 rounded-full bg-[#046938]/35 blur-md animate-pulse group-hover:bg-[#046938]/60 transition-all pointer-events-none"></span>
+        <span
+            class="absolute -inset-1 rounded-full bg-[#046938]/35 blur-md animate-pulse group-hover:bg-[#046938]/60 transition-all pointer-events-none"></span>
 
         {{-- Icon wrapper with toggle states --}}
         <div class="relative w-6 h-6 flex items-center justify-center shrink-0">
             {{-- Default Closed State Icon: Shield / AI Sparkles --}}
-            <svg id="copilot-toggle-icon-closed" class="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="copilot-toggle-icon-closed" class="w-6 h-6 transition-transform duration-300 group-hover:rotate-12"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
             </svg>
             {{-- Open State Close Icon --}}
-            <svg id="copilot-toggle-icon-open" class="w-6 h-6 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="copilot-toggle-icon-open" class="w-6 h-6 hidden transition-transform duration-300" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </div>
@@ -28,8 +39,9 @@
         </div>
 
         {{-- Badge pill --}}
-        <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full bg-[#DEA74F] text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-xs">
-            NBRB RAG
+        <span
+            class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full bg-[#DEA74F] text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-xs">
+            READY
         </span>
     </button>
 
@@ -39,9 +51,12 @@
         role="dialog" aria-modal="true" aria-labelledby="copilot-title">
 
         {{-- Top Window Header --}}
-        <div class="bg-gradient-to-r from-[#03522c] via-[#046938] to-[#077941] p-3.5 sm:p-4 text-white flex items-center justify-between shrink-0 shadow-sm select-none border-b border-emerald-600/30">
+        <div id="copilot-header"
+            class="bg-gradient-to-r from-[#03522c] via-[#046938] to-[#077941] p-3.5 sm:p-4 text-white flex items-center justify-between shrink-0 shadow-sm select-none border-b border-emerald-600/30 cursor-pointer"
+            title="Double-click header to toggle fullscreen">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
+                <div
+                    class="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
                     <svg class="w-5 h-5 text-[#DEA74F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -49,21 +64,51 @@
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
-                        <h3 id="copilot-title" class="font-black text-sm text-white tracking-tight leading-tight truncate">
+                        <h3 id="copilot-title"
+                            class="font-black text-sm text-white tracking-tight leading-tight truncate">
                             NBRB Statutory Copilot
                         </h3>
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/25 border border-emerald-400/30 text-[10px] text-emerald-200 font-mono font-bold shrink-0">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>RAG Ready
+                        <span
+                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/25 border border-emerald-400/30 text-[10px] text-emerald-200 font-mono font-bold shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>Ready
                         </span>
                     </div>
                     <p class="text-[11px] text-emerald-100/80 font-medium truncate">
-                        Uganda National Building Code & Regulations (2020)
+                        Uganda National Building Code & Regulations
                     </p>
                 </div>
             </div>
 
             {{-- Header Actions --}}
             <div class="flex items-center gap-1 text-emerald-100">
+                @if(Route::has('admin.copilot.index'))
+                    <a href="{{ route('admin.copilot.index') }}" id="copilot-fullpage-link"
+                        class="p-1.5 sm:p-2 rounded-xl hover:bg-white/15 text-emerald-100/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
+                        title="Open Dedicated Full Page Workspace">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                @endif
+
+                {{-- Expand / Fullscreen Toggle Button --}}
+                <button type="button" id="copilot-expand-btn"
+                    class="p-1.5 sm:p-2 rounded-xl hover:bg-white/15 text-emerald-100/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
+                    title="Expand to Fullscreen">
+                    {{-- Maximize Icon --}}
+                    <svg id="copilot-expand-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    {{-- Restore Icon --}}
+                    <svg id="copilot-restore-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 4v4H5m4-4L4 9m11-5h4v4m-4-4l5 5M9 20v-4H5m4 4l-5-5m15 5v-4h-4m4 4l-5-5" />
+                    </svg>
+                </button>
+
                 <button type="button" id="copilot-clear-btn"
                     class="p-1.5 sm:p-2 rounded-xl hover:bg-white/15 text-emerald-100/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
                     title="Clear Conversation History">
@@ -83,115 +128,119 @@
                     class="p-1.5 sm:p-2 rounded-xl hover:bg-white/15 text-emerald-100/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
                     title="Close">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
         </div>
 
         {{-- Persona Selector Bar --}}
-        <div class="px-3 py-2 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
-            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-[#046938]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Persona:
-            </span>
+        <div class="px-3 py-2 bg-slate-100/90 border-b border-slate-200 shrink-0">
+            <div class="w-full max-w-5xl mx-auto flex items-center justify-between gap-2">
+                <span
+                    class="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-[#046938]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Persona:
+                </span>
 
-            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full justify-end">
-                {{-- Inspector Okello --}}
-                <button type="button" data-persona="inspector_okello"
-                    class="copilot-persona-btn active px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 shrink-0 bg-white text-[#046938] shadow-xs border border-slate-200"
-                    title="Chief Building Control Officer - Precise statutory citations & rulings">
-                    <span>🏛️</span>
-                    <span>Insp. Okello</span>
-                </button>
-
-                {{-- Arch. Namubiru --}}
-                <button type="button" data-persona="architect_namubiru"
-                    class="copilot-persona-btn px-2.5 py-1 rounded-xl text-[11px] font-medium transition-all flex items-center gap-1 shrink-0 text-slate-600 hover:text-slate-900 hover:bg-white/70"
-                    title="Chartered Architect - Light, ventilation, headroom, spatial standards & PWD accessibility">
-                    <span>📐</span>
-                    <span>Arch. Namubiru</span>
-                </button>
-
-                {{-- Eng. Kigozi --}}
-                <button type="button" data-persona="engineer_kigozi"
-                    class="copilot-persona-btn px-2.5 py-1 rounded-xl text-[11px] font-medium transition-all flex items-center gap-1 shrink-0 text-slate-600 hover:text-slate-900 hover:bg-white/70"
-                    title="Senior Structural Engineer - Structural loads, concrete strengths, safety & site engineering">
-                    <span>🏗️</span>
-                    <span>Eng. Kigozi</span>
-                </button>
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full justify-end">
+                    @foreach($activeCopilotPersonas as $pKey => $p)
+                        <button type="button" data-persona="{{ $pKey }}"
+                            class="copilot-persona-btn {{ $loop->first ? 'active bg-white text-[#046938] shadow-xs border border-slate-200 font-bold' : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-white/70' }} px-2.5 py-1 rounded-xl text-[11px] transition-all flex items-center gap-1 shrink-0"
+                            title="{{ $p['title'] }} ({{ $p['role'] }}) - {{ $p['summary'] ?? $p['subtitle'] ?? '' }}">
+                            <span>{{ $p['emoji'] ?? '🏛️' }}</span>
+                            <span>{{ $p['short_name'] ?? $p['title'] }}</span>
+                        </button>
+                    @endforeach
+                </div>
             </div>
         </div>
 
         {{-- Quick Query Suggestion Chips --}}
-        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Suggest:</span>
-            <button type="button" data-query="What is the required window ventilation percentage for habitable rooms under the Building Control Regulations?"
-                class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
-                💨 Room Ventilation %
-            </button>
-            <button type="button" data-query="What are the fire escape stairway width and exit door requirements?"
-                class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
-                🚪 Fire Escape Width
-            </button>
-            <button type="button" data-query="What are the minimum wheelchair ramp slope standards for PWD accessibility?"
-                class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
-                ♿ PWD Ramp Slope
-            </button>
-            <button type="button" data-query="What are the minimum plot boundary setback distances for residential buildings?"
-                class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
-                📐 Boundary Setbacks
-            </button>
-            <button type="button" data-query="What concrete grade is required for reinforced structural foundations and columns?"
-                class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
-                🏗️ Concrete Grades
-            </button>
+        <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-200 shrink-0">
+            <div class="w-full max-w-5xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Suggest:</span>
+                <button type="button"
+                    data-query="What is the required window ventilation percentage for habitable rooms under the Building Control Regulations?"
+                    class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
+                    💨 Room Ventilation %
+                </button>
+                <button type="button" data-query="What are the fire escape stairway width and exit door requirements?"
+                    class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
+                    🚪 Fire Escape Width
+                </button>
+                <button type="button"
+                    data-query="What are the minimum wheelchair ramp slope standards for PWD accessibility?"
+                    class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
+                    ♿ PWD Ramp Slope
+                </button>
+                <button type="button"
+                    data-query="What are the minimum plot boundary setback distances for residential buildings?"
+                    class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
+                    📐 Boundary Setbacks
+                </button>
+                <button type="button"
+                    data-query="What concrete grade is required for reinforced structural foundations and columns?"
+                    class="copilot-chip px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-[#046938] text-[11px] font-medium whitespace-nowrap transition-all shadow-2xs">
+                    🏗️ Concrete Grades
+                </button>
+            </div>
         </div>
 
         {{-- Messages History Container --}}
-        <div id="copilot-messages-container" class="flex-1 p-3.5 sm:p-4 space-y-4 overflow-y-auto bg-slate-50/70 scroll-smooth">
+        <div id="copilot-messages-container"
+            class="flex-1 p-3.5 sm:p-5 space-y-4 overflow-y-auto bg-slate-50/70 scroll-smooth">
             {{-- Initial / Loaded Messages Will Render Here Dynamically --}}
         </div>
 
         {{-- Typing / Searching Indicator --}}
-        <div id="copilot-typing-indicator" class="hidden px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center gap-2.5 text-xs text-slate-500 shrink-0">
-            <div class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce" style="animation-delay: 0ms;"></span>
-                <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce" style="animation-delay: 150ms;"></span>
-                <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce" style="animation-delay: 300ms;"></span>
+        <div id="copilot-typing-indicator" class="hidden px-4 py-2.5 bg-slate-50 border-t border-slate-100 shrink-0">
+            <div class="w-full max-w-5xl mx-auto flex items-center gap-2.5 text-xs text-slate-500">
+                <div class="flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce" style="animation-delay: 0ms;"></span>
+                    <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce"
+                        style="animation-delay: 150ms;"></span>
+                    <span class="w-2 h-2 rounded-full bg-[#046938] animate-bounce"
+                        style="animation-delay: 300ms;"></span>
+                </div>
+                <span id="copilot-typing-text" class="font-medium text-[11px] text-slate-600">
+                    Searching Uganda Building Regulations & Statutory Clauses...
+                </span>
             </div>
-            <span id="copilot-typing-text" class="font-medium text-[11px] text-slate-600">
-                Searching Uganda Building Regulations & Statutory Clauses...
-            </span>
         </div>
 
         {{-- Input & Submit Form --}}
-        <form id="copilot-form" class="p-3 bg-white border-t border-slate-200 shrink-0 space-y-2">
-            <div class="relative flex items-end gap-2">
-                <textarea id="copilot-input" rows="1"
-                    placeholder="Ask about Uganda building codes, clauses, standards..."
-                    class="w-full resize-none rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#046938] focus:border-transparent transition-all max-h-28"
-                    maxlength="2000"></textarea>
+        <form id="copilot-form" class="p-3 bg-white border-t border-slate-200 shrink-0">
+            <div class="w-full max-w-5xl mx-auto space-y-2">
+                <div class="relative flex items-end gap-2">
+                    <textarea id="copilot-input" rows="1"
+                        placeholder="Ask about Uganda building codes, clauses, standards..."
+                        class="w-full resize-none rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#046938] focus:border-transparent transition-all max-h-28"
+                        maxlength="2000"></textarea>
 
-                <button type="submit" id="copilot-submit-btn"
-                    class="p-2.5 rounded-2xl bg-[#046938] hover:bg-[#03522c] active:scale-95 text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#046938]"
-                    title="Send message (Enter)">
-                    <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
-                </button>
-            </div>
+                    <button type="submit" id="copilot-submit-btn"
+                        class="p-2.5 rounded-2xl bg-[#046938] hover:bg-[#03522c] active:scale-95 text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#046938]"
+                        title="Send message (Enter)">
+                        <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                    </button>
+                </div>
 
-            <div class="flex items-center justify-between text-[10px] text-slate-400 px-1 font-medium">
-                <span class="flex items-center gap-1 truncate">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span>National Building Review Board • Uganda</span>
-                </span>
-                <span class="shrink-0 hidden sm:inline text-slate-400 font-mono">
-                    Enter ↵ to send • Shift+Enter newline
-                </span>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 px-1 font-medium">
+                    <span class="flex items-center gap-1 truncate">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>National Building Review Board • Uganda</span>
+                    </span>
+                    <span class="shrink-0 hidden sm:inline text-slate-400 font-mono">
+                        Enter ↵ to send • Shift+Enter newline
+                    </span>
+                </div>
             </div>
         </form>
     </div>
@@ -203,10 +252,16 @@
         const STORAGE_KEY = 'nbrb_copilot_history_v2';
         const PERSONA_KEY = 'nbrb_copilot_persona_v2';
         const OPEN_KEY = 'nbrb_copilot_open_v2';
+        const EXPANDED_KEY = 'nbrb_copilot_expanded_v2';
 
         const root = document.getElementById('nbrb-copilot-root');
         const toggleBtn = document.getElementById('nbrb-copilot-toggle');
         const windowEl = document.getElementById('nbrb-copilot-window');
+        const backdropEl = document.getElementById('copilot-backdrop');
+        const headerEl = document.getElementById('copilot-header');
+        const expandBtn = document.getElementById('copilot-expand-btn');
+        const expandIcon = document.getElementById('copilot-expand-icon');
+        const restoreIcon = document.getElementById('copilot-restore-icon');
         const iconClosed = document.getElementById('copilot-toggle-icon-closed');
         const iconOpen = document.getElementById('copilot-toggle-icon-open');
         const minimizeBtn = document.getElementById('copilot-minimize-btn');
@@ -221,39 +276,30 @@
         const input = document.getElementById('copilot-input');
         const submitBtn = document.getElementById('copilot-submit-btn');
 
-        // Available persona metadata
-        const personas = {
-            inspector_okello: {
-                id: 'inspector_okello',
-                title: 'Inspector Okello',
-                role: 'Chief Building Control Officer',
-                badge: '🏛️ Statutory Ruling',
-                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                welcome: 'I am **Inspector Okello**, Chief Building Control Officer at NBRB. I provide definitive statutory rulings grounded in the Uganda Building Control Act and Regulations. Ask me about compliance thresholds, statutory instruments, or permit clearance requirements.'
-            },
-            architect_namubiru: {
-                id: 'architect_namubiru',
-                title: 'Arch. Namubiru',
-                role: 'Chartered Architect',
-                badge: '📐 Spatial & Light',
-                badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
-                welcome: 'I am **Architect Namubiru**, chartered architect specializing in Ugandan spatial compliance. Ask me about natural lighting ratios, minimum room dimensions, ventilation openings, and accessibility (PWD) standards.'
-            },
-            engineer_kigozi: {
-                id: 'engineer_kigozi',
-                title: 'Eng. Kigozi',
-                role: 'Senior Structural Engineer',
-                badge: '🏗️ Structural & Site',
-                badgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
-                welcome: 'I am **Eng. Kigozi**, senior structural and site engineer. Ask me about load-bearing margins, structural reinforcement, foundation safety standards, and practical on-site compliance under the building code.'
-            }
-        };
+        // Available persona metadata (filtered to enabled personas)
+        const personas = @json($activeCopilotPersonas);
+        const personaKeys = Object.keys(personas);
+        const defaultPersona = personaKeys[0] || 'inspector_okello';
 
         // Active State
-        let currentPersona = localStorage.getItem(PERSONA_KEY) || 'inspector_okello';
+        let currentPersona = localStorage.getItem(PERSONA_KEY);
+        if (!currentPersona || !personas[currentPersona]) {
+            currentPersona = defaultPersona;
+        }
         let messages = [];
         let isOpen = false;
         let isFetching = false;
+        let isExpanded = localStorage.getItem(EXPANDED_KEY) === 'true';
+
+        const compactClasses = [
+            'bottom-20', 'right-4', 'sm:bottom-24', 'sm:right-6',
+            'w-[calc(100vw-2rem)]', 'sm:w-[460px]', 'md:w-[490px]',
+            'h-[610px]', 'max-h-[calc(100vh-7.5rem)]', 'rounded-3xl', 'origin-bottom-right'
+        ];
+        const expandedClasses = [
+            'inset-2', 'sm:inset-4', 'md:inset-6', 'lg:inset-8',
+            'w-auto', 'h-auto', 'max-h-none', 'rounded-2xl', 'md:rounded-3xl', 'origin-center'
+        ];
 
         // Auto-expand textarea
         if (input) {
@@ -273,6 +319,37 @@
             });
         }
 
+        // Toggle Fullscreen / Expanded Mode
+        function setCopilotExpanded(expanded) {
+            isExpanded = expanded;
+            localStorage.setItem(EXPANDED_KEY, isExpanded ? 'true' : 'false');
+
+            if (isExpanded) {
+                compactClasses.forEach(c => windowEl.classList.remove(c));
+                expandedClasses.forEach(c => windowEl.classList.add(c));
+                if (expandIcon) expandIcon.classList.add('hidden');
+                if (restoreIcon) restoreIcon.classList.remove('hidden');
+                if (expandBtn) expandBtn.title = 'Restore Compact Size (Esc)';
+                if (backdropEl && isOpen) {
+                    backdropEl.classList.remove('opacity-0', 'pointer-events-none');
+                    backdropEl.classList.add('opacity-100', 'pointer-events-auto');
+                }
+            } else {
+                expandedClasses.forEach(c => windowEl.classList.remove(c));
+                compactClasses.forEach(c => windowEl.classList.add(c));
+                if (expandIcon) expandIcon.classList.remove('hidden');
+                if (restoreIcon) restoreIcon.classList.add('hidden');
+                if (expandBtn) expandBtn.title = 'Expand to Fullscreen';
+                if (backdropEl) {
+                    backdropEl.classList.add('opacity-0', 'pointer-events-none');
+                    backdropEl.classList.remove('opacity-100', 'pointer-events-auto');
+                }
+            }
+
+            renderMessages();
+            scrollToBottom();
+        }
+
         // Toggle Open/Close Window
         function setCopilotOpen(open) {
             isOpen = open;
@@ -281,6 +358,10 @@
                 windowEl.classList.add('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
                 if (iconClosed) iconClosed.classList.add('hidden');
                 if (iconOpen) iconOpen.classList.remove('hidden');
+                if (isExpanded && backdropEl) {
+                    backdropEl.classList.remove('opacity-0', 'pointer-events-none');
+                    backdropEl.classList.add('opacity-100', 'pointer-events-auto');
+                }
                 localStorage.setItem(OPEN_KEY, 'true');
                 scrollToBottom();
                 setTimeout(() => { if (input) input.focus(); }, 150);
@@ -289,6 +370,10 @@
                 windowEl.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
                 if (iconClosed) iconClosed.classList.remove('hidden');
                 if (iconOpen) iconOpen.classList.add('hidden');
+                if (backdropEl) {
+                    backdropEl.classList.add('opacity-0', 'pointer-events-none');
+                    backdropEl.classList.remove('opacity-100', 'pointer-events-auto');
+                }
                 localStorage.setItem(OPEN_KEY, 'false');
             }
         }
@@ -296,6 +381,27 @@
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
                 setCopilotOpen(!isOpen);
+            });
+        }
+
+        if (expandBtn) {
+            expandBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (!isOpen) setCopilotOpen(true);
+                setCopilotExpanded(!isExpanded);
+            });
+        }
+
+        if (headerEl) {
+            headerEl.addEventListener('dblclick', function (e) {
+                if (e.target.closest('button') || e.target.closest('a')) return;
+                setCopilotExpanded(!isExpanded);
+            });
+        }
+
+        if (backdropEl) {
+            backdropEl.addEventListener('click', function () {
+                setCopilotExpanded(false);
             });
         }
 
@@ -311,18 +417,25 @@
             });
         }
 
-        // Keyboard Shortcut: Ctrl + / or Cmd + / to toggle, Escape to close
+        // Keyboard Shortcut: Ctrl + / or Cmd + / to toggle, Escape to close/restore
         document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === '/') {
                 e.preventDefault();
                 setCopilotOpen(!isOpen);
             } else if (e.key === 'Escape' && isOpen) {
-                setCopilotOpen(false);
+                if (isExpanded) {
+                    setCopilotExpanded(false);
+                } else {
+                    setCopilotOpen(false);
+                }
             }
         });
 
         // Set Active Persona
         function setPersona(personaId) {
+            if (!personas[personaId]) {
+                personaId = defaultPersona;
+            }
             if (!personas[personaId]) return;
             currentPersona = personaId;
             localStorage.setItem(PERSONA_KEY, personaId);
@@ -433,17 +546,19 @@
 
             // Default Greeting if no conversation
             if (messages.length === 0) {
-                const meta = personas[currentPersona] || personas['inspector_okello'];
+                const meta = personas[currentPersona] || personas[defaultPersona];
+                if (!meta) return;
+                const avatarIcon = meta.emoji || (meta.badge ? meta.badge.split(' ')[0] : '🏛️');
                 const welcomeDiv = document.createElement('div');
-                welcomeDiv.className = 'p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3';
+                welcomeDiv.className = 'w-full max-w-5xl mx-auto p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3';
                 welcomeDiv.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-base">
-                            ${meta.badge.split(' ')[0]}
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-base shadow-2xs">
+                            ${avatarIcon}
                         </div>
                         <div>
-                            <div class="font-bold text-xs text-slate-900 leading-tight">${meta.title}</div>
-                            <div class="text-[10px] text-[#046938] font-semibold">${meta.role}</div>
+                            <div class="font-bold text-xs text-slate-900 leading-tight">${meta.title || ''}</div>
+                            <div class="text-[10px] text-[#046938] font-semibold">${meta.role || ''}</div>
                         </div>
                     </div>
                     <div class="text-xs text-slate-600 leading-relaxed">
@@ -452,7 +567,7 @@
                     <div class="pt-2 border-t border-slate-100 flex flex-wrap gap-1.5">
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider w-full mb-0.5">Key Expertise:</span>
                         <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium">Uganda Building Code</span>
-                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium">NBRB Regulations 2020</span>
+                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium">NBRB Regulations</span>
                         <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium">Statutory Standards</span>
                     </div>
                 `;
@@ -465,30 +580,33 @@
                 const item = document.createElement('div');
 
                 if (msg.role === 'user') {
-                    item.className = 'flex flex-col items-end';
+                    item.className = 'w-full max-w-5xl mx-auto flex flex-col items-end';
                     item.innerHTML = `
-                        <div class="bg-[#046938] text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 shadow-xs text-xs sm:text-sm max-w-[85%] leading-relaxed">
+                        <div class="bg-[#046938] text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 sm:px-4 sm:py-3 shadow-xs text-xs sm:text-sm max-w-[85%] sm:max-w-[75%] leading-relaxed font-medium">
                             ${msg.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                         </div>
                         <span class="text-[9px] text-slate-400 mt-1 font-mono pr-1">${msg.timestamp || ''}</span>
                     `;
                 } else {
-                    const meta = personas[msg.persona] || personas['inspector_okello'];
-                    item.className = 'flex items-start gap-2.5 max-w-[96%]';
+                    const meta = personas[msg.persona] || personas[currentPersona] || personas[defaultPersona] || {};
+                    const avatarIcon = meta.emoji || (meta.badge ? meta.badge.split(' ')[0] : '🏛️');
+                    const badgeClass = meta.badgeClass || meta.badge_class || 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                    item.className = 'w-full max-w-5xl mx-auto flex items-start gap-2.5 sm:gap-3.5';
 
                     let clausesHtml = '';
                     if (msg.clauses && msg.clauses.length > 0) {
+                        const gridCols = isExpanded ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1';
                         clausesHtml = `
                             <div class="mt-2.5 pt-2 border-t border-slate-100 space-y-1.5">
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Referenced Statutory Clauses:</span>
-                                <div class="grid grid-cols-1 gap-1.5">
+                                <div class="grid ${gridCols} gap-1.5">
                                     ${msg.clauses.map(c => `
-                                        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 text-[11px] leading-snug">
-                                            <div class="font-bold text-[#046938] flex items-center justify-between">
-                                                <span>${c.clause_number || ''} ${c.clause_title ? '— ' + c.clause_title : ''}</span>
-                                                <span class="text-[9px] font-mono text-slate-500">${c.document || 'Uganda Building Code'}</span>
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] leading-snug hover:border-emerald-300 hover:bg-emerald-50/20 transition-all shadow-2xs">
+                                            <div class="font-bold text-[#046938] flex items-center justify-between gap-1">
+                                                <span class="truncate">${c.clause_number || ''} ${c.clause_title ? '— ' + c.clause_title : ''}</span>
+                                                <span class="text-[9px] font-mono text-slate-500 shrink-0">${c.document || 'Uganda Building Code'}</span>
                                             </div>
-                                            ${c.snippet ? `<p class="text-slate-600 mt-1 text-[10px] line-clamp-2">${c.snippet}</p>` : ''}
+                                            ${c.snippet ? `<p class="text-slate-600 mt-1 text-[10px] ${isExpanded ? 'line-clamp-4' : 'line-clamp-2'} leading-relaxed">${c.snippet}</p>` : ''}
                                         </div>
                                     `).join('')}
                                 </div>
@@ -497,14 +615,14 @@
                     }
 
                     item.innerHTML = `
-                        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-2xs">
-                            ${meta.badge.split(' ')[0]}
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-2xs">
+                            ${avatarIcon}
                         </div>
-                        <div class="flex-1 bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-xs sm:text-sm text-slate-800 leading-relaxed">
+                        <div class="flex-1 bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-3.5 sm:p-4 shadow-xs text-xs sm:text-sm text-slate-800 leading-relaxed">
                             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-[11px] text-slate-900">${meta.title}</span>
-                                    <span class="text-[9px] px-1.5 py-0.2 rounded-md ${meta.badgeClass} font-semibold">${meta.role}</span>
+                                    <span class="font-bold text-[11px] text-slate-900">${meta.title || ''}</span>
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded-md ${badgeClass} font-semibold">${meta.role || ''}</span>
                                 </div>
                                 <span class="text-[9px] font-mono text-slate-400">${msg.timestamp || ''}</span>
                             </div>
@@ -586,9 +704,9 @@
 
             // Preferred endpoints: auth users use admin.copilot, guest/auth pages use public copilot route
             @auth
-            const endpoints = ['{{ route("admin.copilot") }}', '{{ route("copilot") }}', '/admin/copilot/ask', '/copilot/ask'];
+                const endpoints = ['{{ route("admin.copilot") }}', '{{ route("copilot") }}', '/admin/copilot/ask', '/copilot/ask'];
             @else
-            const endpoints = ['{{ route("copilot") }}', '/copilot/ask', '{{ route("admin.copilot") }}'];
+                const endpoints = ['{{ route("copilot") }}', '/copilot/ask', '{{ route("admin.copilot") }}'];
             @endauth
             let resolvedData = null;
             let lastError = null;
@@ -676,7 +794,7 @@
             if (savedPersona && personas[savedPersona]) {
                 setPersona(savedPersona);
             } else {
-                setPersona('inspector_okello');
+                setPersona(defaultPersona);
             }
 
             const savedMessages = localStorage.getItem(STORAGE_KEY);
@@ -685,6 +803,10 @@
                 if (Array.isArray(parsed)) {
                     messages = parsed;
                 }
+            }
+
+            if (isExpanded) {
+                setCopilotExpanded(true);
             }
 
             const savedOpen = localStorage.getItem(OPEN_KEY);

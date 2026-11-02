@@ -141,6 +141,21 @@
                     <span class="sidebar-text truncate">Quick Drawing Audit</span>
                 </a>
 
+                <a href="{{ route('admin.copilot.index') }}"
+                    title="Statutory AI Copilot"
+                    class="sidebar-nav-link flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.copilot.*') ? 'bg-[#046938] text-white shadow-sm' : 'text-slate-600 hover:text-[#046938] hover:bg-[#046938]/5' }}">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <svg class="w-5 h-5 shrink-0 text-[#DEA74F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                        </svg>
+                        <span class="sidebar-text truncate">Statutory AI Copilot</span>
+                    </div>
+                    <span class="sidebar-text hidden xl:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider {{ request()->routeIs('admin.copilot.*') ? 'bg-white/20 text-white' : 'bg-[#DEA74F]/20 text-[#966718]' }}">
+                        AI
+                    </span>
+                </a>
+
                 <a href="{{ route('admin.regulatory.index') }}"
                     title="Statutory Standards RAG"
                     class="sidebar-nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('admin.regulatory.*') && !request()->routeIs('admin.regulatory.create') ? 'bg-[#046938] text-white shadow-sm' : 'text-slate-600 hover:text-[#046938] hover:bg-[#046938]/5' }}">
@@ -357,8 +372,10 @@
         });
     </script>
 
-    {{-- Floating AI Copilot for Administrative Portal --}}
-    @include('admin.partials.copilot-chatbot')
+    {{-- Floating AI Copilot for Administrative Portal (suppressed on dedicated full-page copilot) --}}
+    @if(!request()->routeIs('admin.copilot.*'))
+        @include('admin.partials.copilot-chatbot')
+    @endif
 </body>
 
 </html>

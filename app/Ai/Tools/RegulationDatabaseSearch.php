@@ -4,7 +4,6 @@ namespace App\Ai\Tools;
 
 use App\Models\RegulatoryChunk;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Illuminate\Support\Collection;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Stringable;
@@ -39,12 +38,11 @@ class RegulationDatabaseSearch implements Tool
         $chunks = RegulatoryChunk::query()
             ->whereHas(
                 'document',
-                fn($query) =>
-                    $query->where('is_active', true)
+                fn ($query) => $query->where('is_active', true)
             )
             ->with('document')
             ->where(function ($q) use ($search): void {
-                $term = '%' . $search . '%';
+                $term = '%'.$search.'%';
 
                 $q->where('clause_number', 'ILIKE', $term)
                     ->orWhere('clause_title', 'ILIKE', $term)
@@ -57,7 +55,7 @@ class RegulationDatabaseSearch implements Tool
             return 'No matching provisions were found in active regulatory documents.';
         }
 
-        return $chunks->map(fn(RegulatoryChunk $chunk) => [
+        return $chunks->map(fn (RegulatoryChunk $chunk) => [
             'document_title' => $chunk->document?->title,
             'edition_year' => $chunk->document?->edition_year,
             'category' => $chunk->document?->category,

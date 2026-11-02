@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Ai\Agents\UgandaBuildingRegulationsAgent;
 use App\Http\Controllers\Controller;
 use App\Models\DrawingVersion;
 use App\Models\RegulatoryChunk;
+use App\Services\RegulationSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Services\RegulationSearchService;
-use App\Ai\Agents\UgandaBuildingRegulationsAgent;
 use Laravel\Ai\Enums\Lab;
 
 class CopilotController extends Controller
 {
-
     public function __invoke(
         Request $request,
         //    RegulationSearchService $search
@@ -28,9 +27,9 @@ class CopilotController extends Controller
         $question = trim($validated['query']);
 
         // Retrieve source records independently for verifiable citations.
-        //$chunks = $search->semanticSearch($question);
+        // $chunks = $search->semanticSearch($question);
 
-        //$sources = $search->formatSources($chunks);
+        // $sources = $search->formatSources($chunks);
         $persona = $validated['persona'] ?? 'inspector_okello';
 
         // if ($chunks->isEmpty()) {
@@ -55,12 +54,12 @@ class CopilotController extends Controller
             //     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
             // ),
             provider: [
-                    //Lab::Gemini->value => 'gemini-3.1-flash-lite',
+                // Lab::Gemini->value => 'gemini-3.1-flash-lite',
                 Lab::Gemini->value => 'gemini-3-flash-preview',
             ],
         );
 
-        Log::info('Copilot response: ' . json_encode($response));
+        Log::info('Copilot response: '.json_encode($response));
 
         return response()->json([
             'status' => 'success',
@@ -68,15 +67,13 @@ class CopilotController extends Controller
                 'persona' => $persona,
                 'query' => $question,
                 'response' => $response->text,
-                //'referenced_clauses' => $sources,
-            ]
+                // 'referenced_clauses' => $sources,
+            ],
         ]);
     }
 
-    public function ask(Request $request): JsonResponse
-    {
+    public function ask(Request $request): JsonResponse {}
 
-    }
     /**
      * Ask Uganda Building Code questions to the interactive floating AI copilot.
      */
@@ -93,11 +90,11 @@ class CopilotController extends Controller
 
         // 1. Fetch relevant statutory clauses from regulatory_chunks via keyword search
         $keywords = explode(' ', preg_replace('/[^\w\s]/', '', strtolower($query)));
-        $keywords = array_filter($keywords, fn($w) => strlen($w) > 3);
+        $keywords = array_filter($keywords, fn ($w) => strlen($w) > 3);
 
         $regulatoryQuery = RegulatoryChunk::with('document');
 
-        if (!empty($keywords)) {
+        if (! empty($keywords)) {
             $regulatoryQuery->where(function ($q) use ($keywords): void {
                 foreach (array_slice($keywords, 0, 4) as $keyword) {
                     $q->orWhere('content', 'ILIKE', "%{$keyword}%")
@@ -116,12 +113,12 @@ class CopilotController extends Controller
 
         // 2. Check if drawing context was passed
         $drawingContext = '';
-        if (!empty($validated['drawing_version_id'])) {
+        if (! empty($validated['drawing_version_id'])) {
             $version = DrawingVersion::with(['drawing.floor.block.project', 'complianceResult'])->find($validated['drawing_version_id']);
             if ($version) {
                 $drawingContext = "DRAWING CONTEXT: {$version->drawing?->discipline} drawing on {$version->drawing?->floor?->name}, project: {$version->drawing?->floor?->block?->project?->name}.\n";
                 if ($version->complianceResult) {
-                    $drawingContext .= 'Current Compliance Status: ' . $version->complianceResult->overall_status . "\n";
+                    $drawingContext .= 'Current Compliance Status: '.$version->complianceResult->overall_status."\n";
                 }
             }
         }
@@ -162,12 +159,12 @@ class CopilotController extends Controller
                     $aiResponseText = $response->json('candidates.0.content.parts.0.text');
                 }
             } catch (\Throwable $e) {
-                Log::warning('Direct Gemini API call in CopilotController failed: ' . $e->getMessage());
+                Log::warning('Direct Gemini API call in CopilotController failed: '.$e->getMessage());
             }
         }
 
         // Fallback response if Gemini API key not configured or unreachable
-        if (!$aiResponseText) {
+        if (! $aiResponseText) {
             $personaName = match ($persona) {
                 'engineer_kigozi' => 'Eng. Kigozi',
                 'architect_namubiru' => 'Arch. Namubiru',
@@ -188,7 +185,7 @@ class CopilotController extends Controller
                 'persona' => $persona,
                 'query' => $query,
                 'response' => $aiResponseText,
-                'referenced_clauses' => $relevantChunks->map(fn($c) => [
+                'referenced_clauses' => $relevantChunks->map(fn ($c) => [
                     'document' => $c->document?->title,
                     'clause_number' => $c->clause_number,
                     'clause_title' => $c->clause_title,

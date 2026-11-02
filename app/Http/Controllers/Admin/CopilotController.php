@@ -6,11 +6,13 @@ use App\Ai\Agents\UgandaBuildingRegulationsAgent;
 use App\Http\Controllers\Controller;
 use App\Models\DrawingVersion;
 use App\Models\RegulatoryChunk;
+use App\Services\CopilotPersonaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Laravel\Ai\Enums\Lab;
 
 class CopilotController extends Controller
@@ -33,12 +35,12 @@ class CopilotController extends Controller
     {
         $validated = $request->validate([
             'query' => ['required', 'string', 'max:2000'],
-            'persona' => ['nullable', 'string', 'in:engineer_kigozi,architect_namubiru,inspector_okello'],
+            'persona' => ['nullable', 'string', Rule::in(CopilotPersonaService::getEnabledKeys() ?: ['inspector_okello', 'architect_namubiru', 'engineer_kigozi'])],
             'drawing_version_id' => ['nullable', 'uuid', 'exists:drawing_versions,id'],
         ]);
 
         $question = trim($validated['query']);
-        $persona = $validated['persona'] ?? 'inspector_okello';
+        $persona = $validated['persona'] ?? CopilotPersonaService::getDefaultPersonaKey();
         $drawingVersionId = $validated['drawing_version_id'] ?? null;
         $personaName = $this->personaNames[$persona] ?? 'Inspector Okello';
 
@@ -52,7 +54,7 @@ class CopilotController extends Controller
             $response = $agent->prompt(
                 $question,
                 provider: [
-                    Lab::Gemini->value => 'gemini-3-flash-preview'
+                    Lab::Gemini->value => 'gemini-3-flash-preview',
                 ],
             );
 

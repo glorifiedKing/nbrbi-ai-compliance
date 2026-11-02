@@ -63,12 +63,12 @@ class RegulatoryDocumentController extends Controller
 
         $file = $request->file('pdf_file');
         $originalName = $file->getClientOriginalName();
-        $storedPath = $file->storeAs('regulatory_documents', time() . '_' . $originalName, 'local');
+        $storedPath = $file->storeAs('regulatory_documents', time().'_'.$originalName, 'local');
 
         // Resolve authenticated user or fallback to first admin
         $userId = $request->user()?->id ?? User::first()?->id;
 
-        if (!$userId) {
+        if (! $userId) {
             $adminUser = User::create([
                 'name' => 'NBRB System Administrator',
                 'email' => 'admin@nbrb.go.ug',
@@ -113,7 +113,7 @@ class RegulatoryDocumentController extends Controller
      */
     public function toggleActive(RegulatoryDocument $document): RedirectResponse
     {
-        $document->update(['is_active' => !$document->is_active]);
+        $document->update(['is_active' => ! $document->is_active]);
         $state = $document->is_active ? 'activated' : 'deactivated';
 
         return redirect()->back()

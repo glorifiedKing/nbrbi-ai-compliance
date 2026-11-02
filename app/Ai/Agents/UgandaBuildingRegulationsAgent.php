@@ -4,7 +4,6 @@ namespace App\Ai\Agents;
 
 use App\Ai\Tools\RegulationDatabaseSearch;
 use App\Models\RegulatoryChunk;
-use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Embeddings;
@@ -63,44 +62,32 @@ PROMPT;
             // new RegulationDatabaseSearch(),
             new SimilaritySearch(
                 using: function (string $query) {
-                    try {
-                        $response = Embeddings::for([$query])
-                            ->dimensions(768)
-                            ->generate(
-                                Lab::Gemini,
-                                'gemini-embedding-001'
-                            );
 
-                        $embedding = $response->embeddings[0];
+                    $response = Embeddings::for([$query])
+                        ->dimensions(768)
+                        ->generate(
+                            Lab::Gemini,
+                            'gemini-embedding-001'
+                        );
 
-                        return RegulatoryChunk::query()
-                            ->whereNotNull('embedding')
-                            ->whereHas(
-                                'document',
-                                fn ($documents) => $documents->where('is_active', true)
-                            )
-                            ->with('document')
-                            ->whereVectorSimilarTo(
-                                'embedding',
-                                $embedding,
-                                minSimilarity: 0.40
-                            )
-                            ->limit(8)
-                            ->get();
-                    } catch (\Throwable $e) {
-                        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'like';
+                    $embedding = $response->embeddings[0];
 
-                        return RegulatoryChunk::query()
-                            ->whereHas('document', fn ($d) => $d->where('is_active', true))
-                            ->where(function ($q) use ($query, $like) {
-                                $q->where('content', $like, "%{$query}%")
-                                    ->orWhere('clause_title', $like, "%{$query}%");
-                            })
-                            ->with('document')
-                            ->limit(8)
-                            ->get();
-                    }
+                    return RegulatoryChunk::query()
+                        ->whereNotNull('embedding')
+                        ->whereHas(
+                            'document',
+                            fn ($documents) => $documents->where('is_active', true)
+                        )
+                        ->with('document')
+                        ->whereVectorSimilarTo(
+                            'embedding',
+                            $embedding,
+                            minSimilarity: 0.40
+                        )
+                        ->limit(8)
+                        ->get();
                 }
+
             ),
         ];
     }

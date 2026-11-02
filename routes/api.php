@@ -33,7 +33,7 @@ Route::prefix('v1')->group(function () use ($authMiddleware): void {
     // Quick Single Drawing Audit (Public or Token-authenticated)
     Route::post('/quick-audit', [QuickAuditController::class, 'store'])->name('api.v1.quick-audit.store');
     Route::get('/quick-audit/{quickAudit}', [QuickAuditController::class, 'show'])->name('api.v1.quick-audit.show');
-    
+
     // Floating AI Copilot
     Route::post('/copilot/ask', CopilotController::class)->name('api.v1.copilot.ask');
 
@@ -67,6 +67,5 @@ Route::prefix('v1')->group(function () use ($authMiddleware): void {
         // Consolidated Project Audit Report
         Route::get('/projects/{project}/report', [ReportController::class, 'projectReport'])->name('api.v1.projects.report');
 
-        
     });
 });
