@@ -44,7 +44,7 @@ class InternalWebhookController extends Controller
         $isCompleted = in_array($overallStatus, ['PASS', 'WARNING', 'FAIL'], true);
 
         // 1. Check if this webhook belongs to a Project Drawing Version
-        $drawingVersion = DrawingVersion::with('drawing.floor.block.project')->find($id);
+        $drawingVersion = DrawingVersion::with('drawing.block.project')->find($id);
 
         if ($drawingVersion) {
             DB::transaction(function () use ($drawingVersion, $validated, $overallStatus, $isCompleted): void {
@@ -81,19 +81,123 @@ class InternalWebhookController extends Controller
                     ]);
                 }
 
-                // If architectural floor plan returned gross floor area, update the floor and roll up to project
-                $floorArea = isset($validated['floor_area_metrics']['gross_floor_area_sqm'])
-                    ? (float) $validated['floor_area_metrics']['gross_floor_area_sqm']
+                // If architectural floor plan returned floor area metrics, update block floors JSON and roll up to project
+                $floorAreaMetrics = is_array($validated['floor_area_metrics'] ?? null)
+                    ? $validated['floor_area_metrics']
+                    : [];
+                $floorArea = isset($floorAreaMetrics['gross_floor_area_sqm'])
+                    ? (float) $floorAreaMetrics['gross_floor_area_sqm']
                     : null;
+                $rawFloors = is_array($floorAreaMetrics['floors'] ?? null)
+                    ? $floorAreaMetrics['floors']
+                    : [];
 
-                if ($floorArea !== null && $floorArea > 0 && $drawingVersion->drawing?->floor) {
-                    $floor = $drawingVersion->drawing->floor;
-                    $floor->update([
-                        'gross_floor_area_sqm' => $floorArea,
+                $block = $drawingVersion->drawing?->block;
+                $isArchitectural = strtolower((string) $drawingVersion->drawing?->discipline) === 'architectural';
+
+                if ($isArchitectural && $block && (! empty($rawFloors) || ($floorArea !== null && $floorArea > 0))) {
+                    if (! empty($rawFloors)) {
+                        $floorsDetails = [];
+
+                        foreach (array_values($rawFloors) as $index => $floorItem) {
+                            if (! is_array($floorItem)) {
+                                continue;
+                            }
+
+                            $floorNumber = isset($floorItem['floor_number'])
+                                ? (int) $floorItem['floor_number']
+                                : (isset($floorItem['page']) ? (int) $floorItem['page'] - 1 : $index);
+                            $floorName = $floorItem['floor_name']
+                                ?? $floorItem['name']
+                                ?? ('Floor '.($floorItem['page'] ?? ($index + 1)));
+
+                            $floorsDetails[] = array_merge($floorItem, [
+                                'floor_number' => $floorNumber,
+                                'floor_name' => $floorName,
+                                'name' => $floorName,
+                                'gross_floor_area_sqm' => isset($floorItem['gross_floor_area_sqm'])
+                                    ? (float) $floorItem['gross_floor_area_sqm']
+                                    : 0.0,
+                            ]);
+                        }
+                    } else {
+                        $existingFloors = is_array($block->floors) ? array_values($block->floors) : [];
+
+                        if (! empty($existingFloors)) {
+                            $targetIndex = null;
+
+                            if (isset($floorAreaMetrics['floor_number'])) {
+                                foreach ($existingFloors as $idx => $ef) {
+                                    if (isset($ef['floor_number']) && (int) $ef['floor_number'] === (int) $floorAreaMetrics['floor_number']) {
+                                        $targetIndex = $idx;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($targetIndex === null) {
+                                foreach ($existingFloors as $idx => $ef) {
+                                    if (empty($ef['gross_floor_area_sqm']) || (float) $ef['gross_floor_area_sqm'] <= 0) {
+                                        $targetIndex = $idx;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            $targetIndex ??= 0;
+                            $targetFloor = is_array($existingFloors[$targetIndex] ?? null) ? $existingFloors[$targetIndex] : [];
+                            $floorNumber = (int) ($targetFloor['floor_number'] ?? $floorAreaMetrics['floor_number'] ?? $targetIndex);
+                            $floorName = $floorAreaMetrics['floor_name']
+                                ?? $floorAreaMetrics['name']
+                                ?? $targetFloor['floor_name']
+                                ?? $targetFloor['name']
+                                ?? "Floor {$floorNumber}";
+
+                            $existingFloors[$targetIndex] = array_merge($targetFloor, array_filter([
+                                'floor_number' => $floorNumber,
+                                'floor_name' => $floorName,
+                                'name' => $floorName,
+                                'gross_floor_area_sqm' => $floorArea,
+                                'net_internal_area_sqm' => isset($floorAreaMetrics['net_internal_area_sqm'])
+                                    ? (float) $floorAreaMetrics['net_internal_area_sqm']
+                                    : ($targetFloor['net_internal_area_sqm'] ?? null),
+                                'room_breakdown' => $floorAreaMetrics['room_breakdown'] ?? ($targetFloor['room_breakdown'] ?? null),
+                                'source' => $floorAreaMetrics['source'] ?? ($targetFloor['source'] ?? null),
+                            ], fn ($value): bool => $value !== null));
+
+                            $floorsDetails = $existingFloors;
+                        } else {
+                            $floorNumber = isset($floorAreaMetrics['floor_number']) ? (int) $floorAreaMetrics['floor_number'] : 0;
+                            $floorName = $floorAreaMetrics['floor_name'] ?? $floorAreaMetrics['name'] ?? 'Ground Floor';
+
+                            $floorsDetails = [
+                                array_filter([
+                                    'floor_number' => $floorNumber,
+                                    'floor_name' => $floorName,
+                                    'name' => $floorName,
+                                    'gross_floor_area_sqm' => $floorArea,
+                                    'net_internal_area_sqm' => isset($floorAreaMetrics['net_internal_area_sqm'])
+                                        ? (float) $floorAreaMetrics['net_internal_area_sqm']
+                                        : null,
+                                    'room_breakdown' => $floorAreaMetrics['room_breakdown'] ?? null,
+                                    'source' => $floorAreaMetrics['source'] ?? null,
+                                ], fn ($value): bool => $value !== null),
+                            ];
+                        }
+                    }
+
+                    $summedFloorsArea = collect($floorsDetails)->sum(
+                        fn ($f): float => is_array($f) ? (float) ($f['gross_floor_area_sqm'] ?? 0.0) : 0.0
+                    );
+                    $blockTotalArea = $summedFloorsArea > 0 ? $summedFloorsArea : ($floorArea ?? 0.0);
+
+                    $block->update([
+                        'floors' => $floorsDetails,
+                        'total_floor_area_sqm' => round($blockTotalArea, 2),
                     ]);
 
-                    if ($floor->block?->project) {
-                        FeeCalculationService::recalculateProjectTotals($floor->block->project);
+                    if ($block->project) {
+                        FeeCalculationService::recalculateProjectTotals($block->project);
                     }
                 }
             });

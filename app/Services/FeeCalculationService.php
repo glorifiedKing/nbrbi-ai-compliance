@@ -95,14 +95,17 @@ class FeeCalculationService
      */
     public static function recalculateProjectTotals(Project $project): Project
     {
-        $project->loadMissing(['blocks.floors']);
+        $project->loadMissing(['blocks']);
 
         $totalProjectArea = 0.00;
 
         foreach ($project->blocks as $block) {
-            $blockArea = $block->floors->sum(function ($floor) {
-                return (float) ($floor->gross_floor_area_sqm ?? 0.00);
+            $floors = is_array($block->floors) ? $block->floors : [];
+            $floorsArea = collect($floors)->sum(function ($floor): float {
+                return is_array($floor) ? (float) ($floor['gross_floor_area_sqm'] ?? 0.00) : 0.00;
             });
+
+            $blockArea = $floorsArea > 0 ? $floorsArea : (float) ($block->total_floor_area_sqm ?? 0.00);
 
             $block->updateQuietly([
                 'total_floor_area_sqm' => round($blockArea, 2),

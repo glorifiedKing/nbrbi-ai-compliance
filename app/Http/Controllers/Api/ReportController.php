@@ -17,7 +17,7 @@ class ReportController extends Controller
     {
         $project->load([
             'owner:id,name,email,bims_id',
-            'blocks.floors.drawings.currentVersion.complianceResult',
+            'blocks.drawings.currentVersion.complianceResult',
         ]);
 
         $totalDrawings = 0;
@@ -34,43 +34,41 @@ class ReportController extends Controller
         ];
 
         foreach ($project->blocks as $block) {
-            foreach ($block->floors as $floor) {
-                foreach ($floor->drawings as $drawing) {
-                    $totalDrawings++;
-                    $discipline = strtolower($drawing->discipline);
-                    if (isset($disciplineSummaries[$discipline])) {
-                        $disciplineSummaries[$discipline]['total']++;
+            foreach ($block->drawings as $drawing) {
+                $totalDrawings++;
+                $discipline = strtolower($drawing->discipline);
+                if (isset($disciplineSummaries[$discipline])) {
+                    $disciplineSummaries[$discipline]['total']++;
+                }
+
+                $currentVersion = $drawing->currentVersion;
+                if ($currentVersion && $currentVersion->complianceResult) {
+                    $processedDrawings++;
+                    $result = $currentVersion->complianceResult;
+                    $status = $result->overall_status;
+
+                    if ($status === 'PASS') {
+                        $totalPass++;
+                        if (isset($disciplineSummaries[$discipline])) {
+                            $disciplineSummaries[$discipline]['passed']++;
+                        }
+                    } elseif ($status === 'WARNING') {
+                        $totalWarning++;
+                    } else {
+                        $totalFail++;
+                        if (isset($disciplineSummaries[$discipline])) {
+                            $disciplineSummaries[$discipline]['failed']++;
+                        }
                     }
 
-                    $currentVersion = $drawing->currentVersion;
-                    if ($currentVersion && $currentVersion->complianceResult) {
-                        $processedDrawings++;
-                        $result = $currentVersion->complianceResult;
-                        $status = $result->overall_status;
-
-                        if ($status === 'PASS') {
-                            $totalPass++;
-                            if (isset($disciplineSummaries[$discipline])) {
-                                $disciplineSummaries[$discipline]['passed']++;
-                            }
-                        } elseif ($status === 'WARNING') {
-                            $totalWarning++;
-                        } else {
-                            $totalFail++;
-                            if (isset($disciplineSummaries[$discipline])) {
-                                $disciplineSummaries[$discipline]['failed']++;
-                            }
-                        }
-
-                        $discrepancies = $result->discrepancies ?? [];
-                        foreach ($discrepancies as $d) {
-                            $allDiscrepancies[] = array_merge($d, [
-                                'block' => $block->name,
-                                'floor' => $floor->name ?? "Floor {$floor->floor_number}",
-                                'discipline' => $drawing->discipline,
-                                'version' => "v{$currentVersion->version_number}",
-                            ]);
-                        }
+                    $discrepancies = $result->discrepancies ?? [];
+                    foreach ($discrepancies as $d) {
+                        $allDiscrepancies[] = array_merge($d, [
+                            'block' => $block->name,
+                            'floor' => $d['floor'] ?? $d['floor_name'] ?? null,
+                            'discipline' => $drawing->discipline,
+                            'version' => "v{$currentVersion->version_number}",
+                        ]);
                     }
                 }
             }
@@ -99,13 +97,21 @@ class ReportController extends Controller
         $blockFloorAreas = [];
         foreach ($project->blocks as $block) {
             $floorsData = [];
-            foreach ($block->floors as $floor) {
-                $floorsData[] = [
-                    'floor_id' => $floor->id,
-                    'floor_number' => $floor->floor_number,
-                    'name' => $floor->name,
-                    'gross_floor_area_sqm' => (float) ($floor->gross_floor_area_sqm ?? 0.0),
-                ];
+            $rawFloors = is_array($block->floors) ? $block->floors : [];
+            foreach ($rawFloors as $index => $floor) {
+                if (! is_array($floor)) {
+                    continue;
+                }
+
+                $floorNumber = isset($floor['floor_number']) ? (int) $floor['floor_number'] : $index;
+                $floorName = $floor['floor_name'] ?? $floor['name'] ?? "Floor {$floorNumber}";
+
+                $floorsData[] = array_merge($floor, [
+                    'floor_number' => $floorNumber,
+                    'floor_name' => $floorName,
+                    'name' => $floorName,
+                    'gross_floor_area_sqm' => (float) ($floor['gross_floor_area_sqm'] ?? 0.0),
+                ]);
             }
             $blockFloorAreas[] = [
                 'block_id' => $block->id,

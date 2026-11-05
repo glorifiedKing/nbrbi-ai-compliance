@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ProcessDrawingJob;
 use App\Models\Drawing;
 use App\Models\DrawingVersion;
-use App\Models\Floor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,13 +13,13 @@ use Illuminate\Support\Facades\DB;
 class DrawingController extends Controller
 {
     /**
-     * Upload an engineering drawing PDF for a specific floor and discipline.
+     * Upload an engineering drawing PDF for a specific block and discipline.
      * Automatically handles versioning (v1.0 -> v1.1) and triggers AI compliance check.
      */
     public function upload(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'floor_id' => ['required', 'uuid', 'exists:floors,id'],
+            'block_id' => ['required', 'uuid', 'exists:blocks,id'],
             'discipline' => ['required', 'string', 'in:architectural,structural,mechanical,electrical'],
             'drawing_file' => ['required', 'file', 'mimes:pdf', 'max:51200'], // max 50MB
         ]);
@@ -32,9 +31,9 @@ class DrawingController extends Controller
         $user = $request->user();
 
         $drawingVersion = DB::transaction(function () use ($validated, $file, $fileHash, $fileSize, $originalName, $user) {
-            // Find or create the Drawing record for this floor & discipline
+            // Find or create the Drawing record for this block & discipline
             $drawing = Drawing::firstOrCreate([
-                'floor_id' => $validated['floor_id'],
+                'block_id' => $validated['block_id'],
                 'discipline' => strtolower($validated['discipline']),
             ]);
 
@@ -76,7 +75,7 @@ class DrawingController extends Controller
             ProcessDrawingJob::dispatch($drawingVersion);
         }
 
-        $drawingVersion->load(['drawing.floor.block.project', 'uploader:id,name,email']);
+        $drawingVersion->load(['drawing.block.project', 'uploader:id,name,email']);
 
         return response()->json([
             'status' => 'success',
@@ -119,7 +118,7 @@ class DrawingController extends Controller
     public function complianceReport(DrawingVersion $version): JsonResponse
     {
         $version->load([
-            'drawing.floor.block.project',
+            'drawing.block.project',
             'complianceResult',
             'uploader:id,name,email',
         ]);
@@ -133,9 +132,9 @@ class DrawingController extends Controller
                 'status' => $version->status,
                 'error_message' => $version->error_message,
                 'discipline' => $version->drawing?->discipline,
-                'floor' => $version->drawing?->floor?->name,
-                'block' => $version->drawing?->floor?->block?->name,
-                'project' => $version->drawing?->floor?->block?->project?->name,
+                'floors' => $version->drawing?->block?->floors ?? [],
+                'block' => $version->drawing?->block?->name,
+                'project' => $version->drawing?->block?->project?->name,
                 'compliance_result' => $version->complianceResult,
             ],
         ]);

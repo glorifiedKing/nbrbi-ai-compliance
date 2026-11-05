@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $recentSubmissions = DrawingVersion::with(['drawing.floor.block.project', 'complianceResult', 'uploader:id,name,email'])
+        $recentSubmissions = DrawingVersion::with(['drawing.block.project', 'complianceResult', 'uploader:id,name,email'])
             ->latest()
             ->limit(6)
             ->get();

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectUser;
 use App\Models\User;
+use App\Services\FeeCalculationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,7 +25,7 @@ class ProjectController extends Controller
             ->orWhereHas('collaborators', function ($query) use ($userId): void {
                 $query->where('user_id', $userId);
             })
-            ->with(['owner:id,name,email,bims_id', 'blocks.floors.drawings.currentVersion.complianceResult'])
+            ->with(['owner:id,name,email,bims_id', 'blocks.drawings.currentVersion.complianceResult'])
             ->withCount(['blocks'])
             ->orderByDesc('created_at')
             ->get();
@@ -60,19 +61,21 @@ class ProjectController extends Controller
             'status' => 'draft',
         ]);
 
-        // Automatically create a default "Main Block" to simplify mobile onboarding
-        $block = $project->blocks()->create([
+        // Automatically create a default "Main Block" with default Ground Floor details to simplify mobile onboarding
+        $project->blocks()->create([
             'name' => 'Main Block',
             'description' => 'Primary structure',
+            'floors' => [
+                [
+                    'floor_number' => 0,
+                    'floor_name' => 'Ground Floor',
+                    'name' => 'Ground Floor',
+                    'gross_floor_area_sqm' => 0.0,
+                ],
+            ],
         ]);
 
-        // Create default Ground Floor
-        $block->floors()->create([
-            'floor_number' => 0,
-            'name' => 'Ground Floor',
-        ]);
-
-        $project->load(['blocks.floors', 'owner:id,name,email,bims_id']);
+        $project->load(['blocks', 'owner:id,name,email,bims_id']);
 
         return response()->json([
             'status' => 'success',
@@ -82,7 +85,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * View detailed project structure including blocks, floors, and compliance status.
+     * View detailed project structure including blocks, drawings, and compliance status.
      */
     public function show(Request $request, Project $project): JsonResponse
     {
@@ -91,8 +94,8 @@ class ProjectController extends Controller
         $project->load([
             'owner:id,name,email,bims_id',
             'collaborators:id,name,email,bims_id',
-            'blocks.floors.drawings.currentVersion.complianceResult',
-            'blocks.floors.drawings.versions' => function ($query): void {
+            'blocks.drawings.currentVersion.complianceResult',
+            'blocks.drawings.versions' => function ($query): void {
                 $query->orderByDesc('version_number')->limit(5);
             },
         ]);
@@ -118,6 +121,11 @@ class ProjectController extends Controller
         ]);
 
         $project->update($validated);
+
+        if (isset($validated['occupancy_class'])) {
+            FeeCalculationService::recalculateProjectTotals($project);
+            $project->refresh();
+        }
 
         return response()->json([
             'status' => 'success',
@@ -169,7 +177,7 @@ class ProjectController extends Controller
             ]);
         }
 
-        $project->load(['owner:id,name,email', 'blocks.floors']);
+        $project->load(['owner:id,name,email', 'blocks']);
 
         return response()->json([
             'status' => 'success',

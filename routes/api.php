@@ -53,11 +53,13 @@ Route::prefix('v1')->group(function () use ($authMiddleware): void {
         Route::post('/projects/join', [ProjectController::class, 'joinByToken'])->name('api.v1.projects.join');
         Route::post('/projects/{project}/collaborators', [ProjectController::class, 'addCollaborator'])->name('api.v1.projects.collaborators');
 
-        // Blocks & Floors
+        // Blocks & Floor Details
         Route::post('/projects/{project}/blocks', [BlockFloorController::class, 'storeBlock'])->name('api.v1.blocks.store');
+        Route::put('/blocks/{block}', [BlockFloorController::class, 'updateBlock'])->name('api.v1.blocks.update');
+        Route::delete('/blocks/{block}', [BlockFloorController::class, 'destroyBlock'])->name('api.v1.blocks.destroy');
         Route::post('/blocks/{block}/floors', [BlockFloorController::class, 'storeFloor'])->name('api.v1.floors.store');
         Route::post('/blocks/{block}/floors/batch', [BlockFloorController::class, 'batchCreateFloors'])->name('api.v1.floors.batch');
-        Route::delete('/floors/{floor}', [BlockFloorController::class, 'destroyFloor'])->name('api.v1.floors.destroy');
+        Route::delete('/blocks/{block}/floors/{floorNumber}', [BlockFloorController::class, 'destroyFloor'])->name('api.v1.floors.destroy');
 
         // Drawings & Compliance
         Route::post('/drawings/upload', [DrawingController::class, 'upload'])->name('api.v1.drawings.upload');

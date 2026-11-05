@@ -19,6 +19,7 @@ class Block extends Model
         'project_id',
         'name',
         'description',
+        'floors',
         'total_floor_area_sqm',
     ];
 
@@ -28,6 +29,7 @@ class Block extends Model
     protected function casts(): array
     {
         return [
+            'floors' => 'array',
             'total_floor_area_sqm' => 'float',
         ];
     }
@@ -41,10 +43,10 @@ class Block extends Model
     }
 
     /**
-     * @return HasMany<Floor, $this>
+     * @return HasMany<Drawing, $this>
      */
-    public function floors(): HasMany
+    public function drawings(): HasMany
     {
-        return $this->hasMany(Floor::class)->orderBy('floor_number');
+        return $this->hasMany(Drawing::class);
     }
 }

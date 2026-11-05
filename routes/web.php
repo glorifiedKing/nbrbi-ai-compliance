@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CopilotController;
 use App\Http\Controllers\Admin\CopilotPageController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuickAuditController;
 use App\Http\Controllers\Admin\RegulatoryDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Administrative Floating Copilot
     Route::post('/copilot/ask', CopilotController::class)->name('copilot');
+
+    // Multi-Block Projects, Blocks & Drawings Compliance Workspace
+    Route::get('/projects', [AdminProjectController::class, 'index'])->name('projects.index');
+    Route::post('/projects', [AdminProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}', [AdminProjectController::class, 'show'])->name('projects.show');
+    Route::put('/projects/{project}', [AdminProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{project}', [AdminProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::post('/projects/{project}/blocks', [AdminProjectController::class, 'storeBlock'])->name('projects.blocks.store');
+    Route::put('/projects/{project}/blocks/{block}', [AdminProjectController::class, 'updateBlock'])->name('projects.blocks.update');
+    Route::delete('/projects/{project}/blocks/{block}', [AdminProjectController::class, 'destroyBlock'])->name('projects.blocks.destroy');
+    Route::post('/projects/{project}/blocks/{block}/drawings', [AdminProjectController::class, 'uploadDrawing'])->name('projects.drawings.upload');
+    Route::get('/projects/{project}/report', [AdminProjectController::class, 'report'])->name('projects.report');
 
     // Standalone Quick Drawing Compliance Audit
     Route::get('/quick-audit', [QuickAuditController::class, 'index'])->name('quick-audit.index');

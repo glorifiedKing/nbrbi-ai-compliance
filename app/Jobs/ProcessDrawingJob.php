@@ -33,10 +33,10 @@ class ProcessDrawingJob implements ShouldQueue
     {
         Log::info("Starting compliance analysis job for drawing version: {$this->drawingVersion->id}");
 
-        $this->drawingVersion->loadMissing(['drawing.floor.block.project']);
+        $this->drawingVersion->loadMissing(['drawing.block.project']);
 
         $drawing = $this->drawingVersion->drawing;
-        $project = $drawing?->floor?->block?->project;
+        $project = $drawing?->block?->project;
 
         $discipline = $drawing->discipline ?? 'architectural';
         $occupancyClass = $project->occupancy_class ?? BuildingClass::CLASS_B->value;

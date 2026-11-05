@@ -86,12 +86,12 @@ class Project extends Model
     }
 
     /**
-     * Floors belonging to the project across all blocks.
+     * Drawings belonging to the project across all blocks.
      *
-     * @return HasManyThrough<Floor>
+     * @return HasManyThrough<Drawing, Block, $this>
      */
-    public function floors(): HasManyThrough
+    public function drawings(): HasManyThrough
     {
-        return $this->hasManyThrough(Floor::class, Block::class);
+        return $this->hasManyThrough(Drawing::class, Block::class);
     }
 }

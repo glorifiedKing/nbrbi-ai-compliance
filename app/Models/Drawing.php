@@ -16,17 +16,17 @@ class Drawing extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'floor_id',
+        'block_id',
         'discipline',
         'current_version_id',
     ];
 
     /**
-     * @return BelongsTo<Floor, $this>
+     * @return BelongsTo<Block, $this>
      */
-    public function floor(): BelongsTo
+    public function block(): BelongsTo
     {
-        return $this->belongsTo(Floor::class);
+        return $this->belongsTo(Block::class);
     }
 
     /**

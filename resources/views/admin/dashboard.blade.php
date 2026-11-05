@@ -252,11 +252,11 @@
                         <div class="py-3.5 flex items-center justify-between">
                             <div class="min-w-0 pr-4">
                                 <h4 class="text-sm font-bold text-slate-800 truncate">
-                                    {{ $sub->drawing?->floor?->block?->project?->name ?? 'Project Submission' }}
+                                    {{ $sub->drawing?->block?->project?->name ?? 'Project Submission' }}
                                 </h4>
                                 <p class="text-xs text-slate-500 mt-0.5">
                                     {{ ucfirst($sub->drawing?->discipline ?? 'General') }} •
-                                    {{ $sub->drawing?->floor?->name ?? 'Floor' }} (v{{ $sub->version_number }})
+                                    {{ $sub->drawing?->block?->name ?? 'Block' }} (v{{ $sub->version_number }})
                                 </p>
                             </div>
                             <div class="shrink-0">
