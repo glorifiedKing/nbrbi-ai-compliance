@@ -49,10 +49,24 @@ class DrawingController extends Controller
                 return $latestVersion;
             }
 
+            // 1. Temporarily remove the system umask restriction
+            $oldUmask = umask(0000);
+
+            // 2. Define the absolute path to the directory
+            $dirPath = storage_path("app/private/drawings/{$drawing->id}");
+
+            // 3. Pre-create the directory with explicit 0777 permissions if it doesn't exist
+            if (!is_dir($dirPath)) {
+                mkdir($dirPath, 0777, true);
+            }
+
+            // 4. Restore the old umask context for security
+            umask($oldUmask);
+
             // Store file
             $storedPath = $file->storeAs(
                 "drawings/{$drawing->id}",
-                "v{$nextVersionNumber}_".time()."_{$originalName}",
+                "v{$nextVersionNumber}_" . time() . "_{$originalName}",
                 'local'
             );
 
