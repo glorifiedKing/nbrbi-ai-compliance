@@ -49,6 +49,16 @@
             </div>
 
             <div class="flex items-center gap-2">
+                <a href="{{ route('admin.copilot-websites.index') }}"
+                    class="px-3.5 py-2 rounded-xl bg-[#046938] hover:bg-[#03522c] text-white text-xs font-bold shadow-2xs transition-all flex items-center gap-2"
+                    title="Manage external websites & copy embeddable Copilot JS script">
+                    <svg class="w-4 h-4 text-[#DEA74F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    <span>Embed on External Sites</span>
+                </a>
+
                 <button type="button" id="workspace-export-btn"
                     class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-2xs hover:shadow-xs transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#046938]"
                     title="Export conversation as statutory memorandum">

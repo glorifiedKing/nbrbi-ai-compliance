@@ -114,9 +114,9 @@ class CopilotController extends Controller
         // 2. Check if drawing context was passed
         $drawingContext = '';
         if (! empty($validated['drawing_version_id'])) {
-            $version = DrawingVersion::with(['drawing.floor.block.project', 'complianceResult'])->find($validated['drawing_version_id']);
+            $version = DrawingVersion::with(['drawing.block.project', 'complianceResult'])->find($validated['drawing_version_id']);
             if ($version) {
-                $drawingContext = "DRAWING CONTEXT: {$version->drawing?->discipline} drawing on {$version->drawing?->floor?->name}, project: {$version->drawing?->floor?->block?->project?->name}.\n";
+                $drawingContext = "DRAWING CONTEXT: {$version->drawing?->discipline} drawing on {$version->drawing?->block?->name}, project: {$version->drawing?->block?->project?->name}.\n";
                 if ($version->complianceResult) {
                     $drawingContext .= 'Current Compliance Status: '.$version->complianceResult->overall_status."\n";
                 }

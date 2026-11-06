@@ -134,9 +134,9 @@ class CopilotController extends Controller
         $drawingContext = '';
         if ($drawingVersionId) {
             try {
-                $version = DrawingVersion::with(['drawing.floor.block.project', 'complianceResult'])->find($drawingVersionId);
+                $version = DrawingVersion::with(['drawing.block.project', 'complianceResult'])->find($drawingVersionId);
                 if ($version) {
-                    $drawingContext = "\n\n> **Drawing Context:** {$version->drawing?->discipline} drawing on floor '{$version->drawing?->floor?->name}', Project: {$version->drawing?->floor?->block?->project?->name}.";
+                    $drawingContext = "\n\n> **Drawing Context:** {$version->drawing?->discipline} drawing on block '{$version->drawing?->block?->name}', Project: {$version->drawing?->block?->project?->name}.";
                     if ($version->complianceResult) {
                         $drawingContext .= " Current audit status: **{$version->complianceResult->overall_status}**.";
                     }

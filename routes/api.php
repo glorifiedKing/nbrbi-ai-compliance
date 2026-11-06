@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\InternalWebhookController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\QuickAuditController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\EmbedCopilotController;
 use Illuminate\Support\Facades\Route;
 
 $authMiddleware = config('app.in_autologin') ? 'auth:api' : 'auth:sanctum';
@@ -36,6 +37,8 @@ Route::prefix('v1')->group(function () use ($authMiddleware): void {
 
     // Floating AI Copilot
     Route::post('/copilot/ask', CopilotController::class)->name('api.v1.copilot.ask');
+    Route::options('/copilot/embed/{site}/ask', [EmbedCopilotController::class, 'options'])->name('api.v1.copilot.embed.options');
+    Route::post('/copilot/embed/{site}/ask', [EmbedCopilotController::class, 'ask'])->name('api.v1.copilot.embed.ask');
 
     // Protected Routes
     Route::middleware($authMiddleware)->group(function (): void {
